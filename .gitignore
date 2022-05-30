@@ -1,0 +1,4 @@
+# no modules
+/node_modules
+# no secrets
+/.env

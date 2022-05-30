@@ -1,0 +1,32 @@
+{
+  "name": "sharivision",
+  "version": "1.0.0",
+  "description": "Social media for reviewing and recommanding shows and movies",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev":  "start /d frontend npm start && nodemon index.js",
+    "heroku-prebuild":"NODE_ENV=production cd frontend/ && npm run build && cd ..",
+    "start": "nodemon index.js"
+  },
+  "keywords": [
+    "react",
+    "express",
+    "mongodb"
+  ],
+  "author": "rellian",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cloudinary": "^1.29.1",
+    "cors": "^2.8.5",
+    "dotenv": "^11.0.0",
+    "express": "^4.18.1",
+    "google-auth-library": "^7.14.1",
+    "helmet": "^5.0.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.3.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.16"
+  }
+}
