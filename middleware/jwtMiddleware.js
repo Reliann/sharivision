@@ -12,12 +12,17 @@ const auth = async (req,res,next)=>{
             req.userId = decoded?.id
             if(req.userId){
                 next()
-            }else{
-                console.log("auth failed");
-                res.status(401).json("Login Required")
-            }
+            }//else{
+            //     console.log("auth failed");
+            //     res.status(401).json("Login Required")
+            // }
         } catch (error) {
-            res.status(400).json("bad authorization")
+            if (error instanceof jwt.TokenExpiredError){
+                // if the token is expired it needs to get a new one via reffresh
+                res.status(401).json("Login Required")
+            }else{
+                res.status(400).json("bad authorization")
+            }
         }
     }
     

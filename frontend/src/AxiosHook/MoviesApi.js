@@ -12,11 +12,11 @@ export function getMovieById (id){
     return moviesApi.get(`shows/${id}`)
 }
 export function searchMovies (quary){
-    return moviesApi.get(`shows/search/shows?q=${quary}`)
+    return moviesApi.get(`search/shows?q=${quary}`)
 }
 export function getFullMovieInfo(id){
     // this includes list of episodes and cast
-    return moviesApi.get(`https://api.tvmaze.com/shows/${id}?embed[]=episodes&embed[]=cast`)
+    return moviesApi.get(`shows/${id}?embed[]=episodes&embed[]=cast`)
 }
 export function getMoviesPage(pageNumber){
     // pages between 0 to n?

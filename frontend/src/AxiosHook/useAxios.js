@@ -21,12 +21,16 @@ export default function useAxios(){
     const navigate = useNavigate()
     // those routes shouldn't use interceptors...
     const shariApi = axios.create(baseConfig);
+
+    // const setLocalStorage =()=>{
+    //     localStorage.setItem('user', JSON.stringify({token:resp.data.token, info:resp.data.user}))
+    // }
     const logout =async ()=>{
         //clear the tokens and send a logout request
         const resp = await axios.get('auth/logout',baseConfig)
         if (resp?.status ===200){
             navigate('../login')
-            localStorage.removeItem('user')
+            //localStorage.removeItem('user')
             setUser({})
         }
         return resp
@@ -34,7 +38,7 @@ export default function useAxios(){
     const login = async(payload)=>{
         const resp = await axios.post('auth/login',payload, baseConfig)
         if (resp?.status===200){
-            localStorage.setItem('user', JSON.stringify({token:resp.data.token, info:resp.data.user}))
+            //setLocalStorage()
             setUser({token:resp.data.token, info:resp.data.user})
             navigate('../')
         }
@@ -43,7 +47,7 @@ export default function useAxios(){
     const googleLogin = async(payload)=>{
         const resp = await axios.post('auth/google-login',payload, baseConfig)
         if (resp?.status===200){
-            localStorage.setItem('user', JSON.stringify({token:resp.data.token, info:resp.data.user}))
+            //setLocalStorage()
             setUser({token:resp.data.token, info:resp.data.user})
             navigate('../')
         }
@@ -52,14 +56,14 @@ export default function useAxios(){
     const register = async(payload)=>{
         const resp = await axios.post('auth/register',payload, baseConfig)
         if (resp?.status===200){
-            localStorage.setItem('user', JSON.stringify({token:resp.data.token, info:resp.data.user}))
+            //setLocalStorage()
             setUser({token:resp.data.token, info:resp.data.user})
             navigate('../')
         }
         return resp
     }
     const refreshTokens = async()=>{
-        const resp = await axios.post('auth/refresh/',baseConfig)
+        const resp = await axios.post('auth/refresh',{},baseConfig)
         if(resp.status===200){
             setUser({...user,token:resp.data.token})
         }else{
@@ -90,21 +94,22 @@ export default function useAxios(){
         async (error)=>{
             // Any status codes that falls outside the range of 2xx cause this function to trigger
             // Do something with response error
-            if (error?.status === 401){
+            console.dir(error);
+            if (error.response.status === 401){
                 const resp = await refreshTokens()
                 if (resp.status === 200){
                     let og_request = error.config
                     og_request.headers.Authorization = `JWT ${resp.data.token}` 
                     return axios.request(og_request)
                 }
-            }else if(![404,400].includes(error?.status)){
-                // I consider only 404 and 400 as form errors, 
-                // foor anything else i want a snackbar
-                setMsg("Error!")
-                return error
-            }else{
-                return error
+            // }else if([404,400].includes(error?.status)){
+            //     // I consider only 404 and 400 as form errors, 
+            //     // foor anything else i want a snackbar
+            //     setMsg("Error!")
+            //     return error // so it dosen't fail in trycatch
             }
+            return Promise.reject(new Error(error))
+            
         }
     );
 
@@ -117,9 +122,11 @@ export default function useAxios(){
         // user route
         updateUser:(payload)=>(shariApi.put(`users/${user.info._id}`,payload)),
         deleteUser:()=>(shariApi.delete(`users/${user.info._id}`)),
-        uploadSignature:()=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`)),
-        uploadAvatar:(payload)=>(shariApi.patch(`users/${user.info._id}/avatar`,payload)),
-        deleteAvatar:()=>(shariApi.delete(`users/${user.info._id}/avatar`)),
+        //uploadSignature:()=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`)),
+        //uploadAvatar:(payload)=>(shariApi.patch(`users/${user.info._id}/avatar`,payload)),
+        // people 
+        sampleUsers:()=>(shariApi.get(`users/sample/${user.info._id}`)),
+        //lists
         addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user.info._id}/watchlist/${movieId}`)),
         removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user.info._id}/watchlist/${movieId}`)),
         requestFriendship:(friendId)=>(shariApi.post(`users/${user.info._id}/friendrequest/${friendId}`)),
@@ -137,7 +144,7 @@ export default function useAxios(){
         // upload routes 
         signUpload:(params)=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`,{params:params})),
         uploadAvatar:(avatar_url)=>(shariApi.patch(`users/${user.info._id}/avatar`,{avatar_url:avatar_url})),
-        
+        deleteAvatar:()=>(shariApi.delete(`users/${user.info._id}/avatar`)),
         // posts route
         // ....
         // comments route

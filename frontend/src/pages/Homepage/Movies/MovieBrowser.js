@@ -3,9 +3,7 @@ import { Route, Routes} from "react-router-dom";
 import MoviesGrid from "./MoviesGrid";
 import MoviePage from "./MoviePage/MoviePage";
 import Search from "@mui/icons-material/Search";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {getMoviesPage} from '../../../AxiosHook/MoviesApi'
+import { useState } from "react";
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 
 
@@ -15,40 +13,29 @@ function getRandomInt(max) {
 
 
 export default function MoviesBrowser(props){
-    const [movies,setMovies] = useState([])
-    const navigate = useNavigate()
+    const [search,setSearch] = useState('')
+    const [refresh, setRefresh] = useState(0)
 
-    const getRandomPage = async()=>{
-        // api has 240 pages
-        const page = getRandomInt(240)
-        try {
-            const resp = await getMoviesPage(page)
-            setMovies(resp.data)
-        } catch (error) {
-            console.log(error);
-            navigate('error')
-        }
+    const searchMovies = async (e)=>{
+        e.preventDefault()
+        setSearch(e.target.elements.search.value)
     }
-    useEffect(()=>{getRandomPage()},[])
-    const searchMovies=async ()=>{
-        
-    }
+    const searchBoxGrid = <Grid container sx={{justifyContent:'center'}}>
+        <Box component='form'  onSubmit={searchMovies} sx={{display:'flex', justifyContent:'center'}} >
+        <TextField defaultValue={''} name='search' type='search'/>
+        <Button type = 'submit'endIcon={<Search/>}>
+            Search
+        </Button>
+        <IconButton onClick={()=>setRefresh(refresh + 1)}>
+            <AutorenewIcon/>
+        </IconButton>
+        </Box>
+        <MoviesGrid api={props.api} search={search} refresh={refresh}/>
+    </Grid>
     return <Box>
-        <Grid container sx={{justifyContent:'center'}}>
-            <Box sx={{display:'flex', justifyContent:'center'}}>
-                <TextField type='search'/>
-                <Button endIcon={<Search/>} onClick={searchMovies}>
-                    Search
-                </Button>
-                <IconButton>
-                    <AutorenewIcon/>
-                </IconButton>
-            </Box>
-            
-        </Grid>
         <Routes>
-            <Route path='/' element={<MoviesGrid api={props.api} />}/> 
-            <Route path='/:id' element={<MoviePage api={props.api}/>}/> {/* includes full movie data, has own state */}
+            <Route path='/' element={searchBoxGrid}/> 
+            <Route path='/:id' element={<MoviePage api={props.api} user={props.user} />}/> {/* includes full movie data, has own state */}
         </Routes>
     </Box>
 }

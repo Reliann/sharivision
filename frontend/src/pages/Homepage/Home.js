@@ -1,4 +1,4 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Link, Typography } from "@mui/material";
 import { Routes, Route} from "react-router-dom";
 import Users from "./Users/Users";
 import UserProfile from "./Users/UserProfile";
@@ -11,6 +11,8 @@ import AuthContext from "../../context/context";
 import useAxios from '../../AxiosHook/useAxios'
 import MoviesBrowser from "./Movies/MovieBrowser";
 import MyProfile from "./Users/MyProfile";
+import WatchList from "./watchList";
+import PeopleBrowser from "./friends/PeopleBrowser";
 
 export default function Home(){
     const {user} = useContext(AuthContext)
@@ -20,10 +22,10 @@ export default function Home(){
     const toggleDrawer= ()=>{
         setDrawer(!drawer)
     }
-    if (!user){
+    if (Object.keys(user).length===0){
         return (
             <Box>
-                log in to view homepage
+                <Link href="/login">log in </Link>to view homepage
             </Box>
         )
     }
@@ -36,7 +38,9 @@ export default function Home(){
                     <Route path='MyProfile' element={<MyProfile user={user.info} api={api}/>}/>
                     <Route path='users/:userId' element={<UserProfile api = {api} loggedUser={user.info}/>}/>
                     <Route path='users/' element={<Users api = {api}/>}/>
-                    <Route path='movies/*' element={<MoviesBrowser api = {api}/>}/>
+                    <Route path='watchList' element={<WatchList api={api} user={user.info}/>}/>
+                    <Route path='movies/*' element={<MoviesBrowser api = {api} user={user.info}/>}/>
+                    <Route path='people/*' element={<PeopleBrowser api = {api} user={user.info}/>}/>
                 </Routes>
             </Grid>
             

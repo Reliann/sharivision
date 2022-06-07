@@ -88,6 +88,7 @@ const login = async (req,res)=>{
 const refreshToken= async (req, res) => {
     // when the client wants to get a new acsses token
     try {
+        console.log(req.cookies);
         const refreshToken = req.cookies.refreshtoken
         if(refreshToken) {
             jwt.verify(refreshToken, process.env.refresh_SECRET, async(err, result) => {

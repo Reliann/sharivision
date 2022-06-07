@@ -3,6 +3,7 @@ const mongo = require('mongoose')
 const helmet = require('helmet')
 const morgan = require('morgan')
 const cors = require('cors')
+const path = require("path");
 
 // auth middleware
 const jwtAuth = require('./middleware/jwtMiddleware')
@@ -51,6 +52,11 @@ app.use('/api/users/',[jwtAuth,usersRouter])
 const authRouter = require('./routes/authRoute')
 app.use('/api/auth/',authRouter)
 
+
+app.use(express.static(path.resolve(__dirname, "./frontend/build")));
+app.get("*", function (request, response) {
+    response.sendFile(path.resolve(__dirname, "./frontend/build", "index.html"));
+});
 
 
 app.listen(process.env.PORT , ()=>{

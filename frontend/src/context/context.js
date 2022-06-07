@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 const AuthContext = createContext()
 
@@ -9,7 +9,11 @@ export function ContextProvider({children}){
     const [token, setToken] = useState("")
     const [loading,setLoading] = useState(false)
     const [msg,setMsg] = useState("")
-    
+
+    useEffect (()=>{
+        // every time the user changes it needs to be cached (in case of a refresh)
+        localStorage.setItem('user', JSON.stringify(user))
+    },[user])
     const contextExports = {
         user:user,
         tokens:token,

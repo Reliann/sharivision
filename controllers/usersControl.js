@@ -2,7 +2,8 @@ const User = require('../models/User')
 const permission = require('./permissions/permissions')
 // helper function
 const presentableUser = (user)=>{
-    const {password, email,blockedUsers, ...doc} = user._doc
+    // if there is no _doc then destracture the user...
+    const {password, email,blockedUsers, ...doc} = user._doc || user
     return doc
 }
 const options = {new:true}
@@ -12,7 +13,6 @@ const options = {new:true}
 
 // get a user
 const getUser = async (req,res)=>{
-    console.log(req.params.id);
     try {
         const user = await User.findById(req.params.id)
         if(user){
@@ -25,7 +25,30 @@ const getUser = async (req,res)=>{
         return res.status(500).json("Something went wrong")
     }
 }
+const getSampleUsers = async (req,res)=>{
+    try {
+        const user = await User.findById(req.params.id)
+        if (user){
+            const sampleUsers = await User.aggregate([
+                // extra pipline to make sure we don't get the requesting user
+                { $match: { username: { $not: { $eq: user.username } } } },
+                {$sample:{size:8}}])
 
+            if (sampleUsers){
+                return res.status(200).json(sampleUsers.map(user=>(presentableUser(user))))
+                
+            }else{
+                return res.status(404).json("could not find users...")
+            }
+        }else{
+            return res.status(404).json("User not found")
+        }
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json("Something went wrong")
+    }
+}
 const updateUser = async (req,res)=>{
     try {
         const user = await User.findOneAndUpdate({_id:req.params.id},{
@@ -228,7 +251,7 @@ const addToWatchList =async (req,res)=>{
         // this will only add if the id not in array already
         const user = await User.findByIdAndUpdate({_id:req.params.id},{$addToSet:{watchList:req.params.movieId}}, options)
         if (user){
-            return res.status(200).json({detail:"new info",info:{watchedList:user.watchList}})
+            return res.status(200).json({detail:"new info",info:{watchList:user.watchList}})
         }else{
             return res.status(404).json("user not found")
         }
@@ -242,7 +265,7 @@ const removeFromWatchList = async (req,res)=>{
         // this will only add if the id not in array already
         const user = await User.findByIdAndUpdate({_id:req.params.id},{$pull:{watchList:req.params.movieId}},options)
         if (user){
-            return res.status(200).json({detail:"new info",info:{watchedList:user.watchList}})
+            return res.status(200).json({detail:"new info",info:{watchList:user.watchList}})
         }else{
             return res.status(404).json("user not found")
         }
@@ -363,5 +386,6 @@ module.exports = {
     unfollowUser,
     removeFollower,
     addToWatchList,
-    removeFromWatchedMovies,    
+    removeFromWatchedMovies,
+    getSampleUsers,
 }

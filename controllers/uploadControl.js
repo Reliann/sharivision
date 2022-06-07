@@ -46,7 +46,7 @@ const uploadImage = async (req,res)=>{
         if (imgUrl ){
             if (user){
                 await User.findByIdAndUpdate(user._id,{avatar:imgUrl})
-                return res.status(200).json({detail:"new info",avatar:imgUrl})
+                return res.status(200).json({detail:"new info",info:{avatar:imgUrl}})
             }else{
                 return res.status(404).json("user not found")
             }
@@ -65,13 +65,18 @@ const removeImage = async(req,res)=>{
     try {
         const user = await User.findById(req.params.id)
         if (user){
-            const result = await cloudinary.uploader.destroy(`avatars/${user._id}`);
-            console.log(result);
-            if (result){
-                await User.findByIdAndUpdate(user._id,{avatar:""})
-                return res.status(200).json("image deleted")
+            if(user.avatar){
+                const result = await cloudinary.uploader.destroy(`avatars/${user._id}`);
+                console.log(result);
+                if (result){
+                    await User.findByIdAndUpdate(user._id,{avatar:""})
+                    return res.status(200).json({detail:"new info",info:{avatar:''}})
+                }else{
+                    return res.status(500).json("errors happen")
+                }
             }else{
-                return res.status(500).json("errors happen")
+                return res.status(404).json("No avatar found ")
+                
             }
         }else{
             return res.status(404).json("user not found")

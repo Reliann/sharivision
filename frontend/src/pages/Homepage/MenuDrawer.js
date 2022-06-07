@@ -39,7 +39,7 @@ export default function MenuDrawer(props){
                 </ListItemIcon>
                 <ListItemText primary="Browse Movies"/>
             </ListItemButton>
-            <ListItemButton>
+            <ListItemButton component={Link} to='watchList'>
                 <ListItemIcon>
                     <FactCheckIcon/>
                 </ListItemIcon>
@@ -53,7 +53,7 @@ export default function MenuDrawer(props){
                 </ListItemIcon>
                 <ListItemText primary="My Profile"/>
             </ListItemButton>
-            <ListItemButton>
+            <ListItemButton component={Link} to='people'>
                 <ListItemIcon>
                     <GroupIcon/>
                 </ListItemIcon>

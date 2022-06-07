@@ -1,9 +1,8 @@
 
-import { IconButton } from '@mui/material';
+import { Button } from '@mui/material';
 import React, { useContext } from 'react'
-import EditIcon from '@mui/icons-material/Edit';
 import AuthContext from '../context/context';
-
+import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 export default function UploadWidget(props){
   const {user} = useContext(AuthContext)
@@ -36,8 +35,8 @@ export default function UploadWidget(props){
     async (error, result) => {
       if (!error && result && result.event === "success") {
         console.log("Updating url in database...", result.info.secure_url);
-        const resp = props.api.uploadAvatar(result.info.secure_url)
-        if (resp.status === '200'){
+        const resp = await props.api.uploadAvatar(result.info.secure_url)
+        if (resp.status == 200){
           console.log("avatar updated!")
           props.successCallBack()
         }else {
@@ -54,9 +53,11 @@ export default function UploadWidget(props){
 
   return (
     <React.Fragment>
-      <IconButton onClick={()=>{myWidget.open()}}>
-        <EditIcon/>
-      </IconButton>
+      <Button onClick={()=>{myWidget.open()}}
+        startIcon={<FileUploadIcon/>}
+      >
+        Upload
+      </Button>
     </React.Fragment>
   )
 }

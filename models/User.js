@@ -31,7 +31,8 @@ const UserSchema = new mongo.Schema({
         type:String,
         required:[true,'password is required'],
         min:[6,'minimum 6 charecters are required'],
-        max:[50,'maximum 50 charecters for a password']
+        max:[50,'maximum 50 charecters for a password'],
+        default:''
     },
     emailVerified:{
         type:Boolean,
