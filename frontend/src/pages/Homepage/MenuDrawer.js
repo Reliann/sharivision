@@ -53,11 +53,23 @@ export default function MenuDrawer(props){
                 </ListItemIcon>
                 <ListItemText primary="My Profile"/>
             </ListItemButton>
-            <ListItemButton component={Link} to='people'>
+            <ListItemButton component={Link} to='people/'>
                 <ListItemIcon>
                     <GroupIcon/>
                 </ListItemIcon>
-                <ListItemText primary="Friends"/>
+                <ListItemText primary="Discover People"/>
+            </ListItemButton>
+            <ListItemButton component={Link} to='people/friends'>
+                <ListItemIcon>
+                    <GroupIcon/>
+                </ListItemIcon>
+                <ListItemText primary="My Friends"/>
+            </ListItemButton>
+            <ListItemButton component={Link} to='people/friendRequests'>
+                <ListItemIcon>
+                    <GroupIcon/>
+                </ListItemIcon>
+                <ListItemText primary="My Friend Requests"/>
             </ListItemButton>
             <ListItemButton>
                 <ListItemIcon>

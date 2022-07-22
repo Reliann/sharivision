@@ -7,7 +7,7 @@ import AuthContext from '../context/context';
 // this is the same for every request
 
 const baseConfig = {
-    baseURL: 'api/',
+    baseURL: '/api/',
     timeout: 10000,
     headers: {
         'Accept': 'application/json',
@@ -126,6 +126,8 @@ export default function useAxios(){
         //uploadAvatar:(payload)=>(shariApi.patch(`users/${user.info._id}/avatar`,payload)),
         // people 
         sampleUsers:()=>(shariApi.get(`users/sample/${user.info._id}`)),
+        fullFriends:()=>shariApi.get(`users/fullFriends/${user.info._id}`),
+        fullFriendRequests:()=>shariApi.get(`users/fullFriendRequests/${user.info._id}`),
         //lists
         addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user.info._id}/watchlist/${movieId}`)),
         removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user.info._id}/watchlist/${movieId}`)),

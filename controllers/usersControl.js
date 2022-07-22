@@ -49,9 +49,34 @@ const getSampleUsers = async (req,res)=>{
         return res.status(500).json("Something went wrong")
     }
 }
+const getFullPeopleList = async (req,res, list)=>{
+    try {
+        const user = await User.findById(req.params.id)
+        if (user){
+            const friends = await User.find({
+                '_id':{
+                    $in:user[list]
+                }    
+            })
+            if (friends){
+                return res.status(200).json(friends.map(user=>(presentableUser(user))))
+                
+            }else{
+                return res.status(404).json("could not find users...")
+            }
+        }else{
+            return res.status(404).json("User not found")
+        }
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json("Something went wrong")
+    }
+}
+
 const updateUser = async (req,res)=>{
     try {
-        const user = await User.findOneAndUpdate({_id:req.params.id},{
+        const user = await User.findByIdAndUpdate(req.params.id,{
             description:req.body.description,
             city:req.body.city,
             country:req.body.country,
@@ -101,23 +126,36 @@ const addFriendRequest = async (req,res)=>{
         let sendingUser = await User.findById(req.params.id)
         let recivingUser = await User.findById(req.params.friendId)
         if (sendingUser && recivingUser){
+            if (req.params.id === req.params.friendId){
+                return res.status(400).json("You can't befriend yourself ")
+            }
+            if (recivingUser.friends.includes(req.params.id)){
+                return res.status(400).json("you are already friends")
+            }
             // see if the requesting user already sent a request
             if (recivingUser.friendRequests.includes(req.params.id)){
                 return res.status(400).json("you already sent a friend request to that user")
-            }else if(sendingUser.friendRequests.includes(req.params.friendId)){
+            }
+            else if(sendingUser.friendRequests.includes(req.params.friendId)){
                     // cheack if the other user sent a request, if so they are friends !
                     // clean their requests:
-                    sendingUser = await sendingUser.updateOne({$pull:{friendRequests:req.params.friendId},$push:{friends:req.params.friendId}},options)
-                    await recivingUser.updateOne({$pull:{friendRequests:req.params.id},$push:{friends:req.params.id}})
+                    sendingUser = await User.findByIdAndUpdate(req.params.id,{$pull:{friendRequests:req.params.friendId},$addToSet:{friends:req.params.friendId}},options)
+                    if (sendingUser){
+                        recivingUser = await User.findByIdAndUpdate(req.params.friendId,{$addToSet:{friends:req.params.id},$pull:{friendRequests:req.params.id}},options)
+                    }
                     // friend them:
-                    //await sendingUser.updateOne({$push:{friendRequests:req.params.friendId}},)
-                    //await recivingUser.updateOne({$push:{friends:req.params.id}})
-                    return res.status(200).json({detail:"new info",info:{friends:sendingUser.friends}})
-                }else{
-                    // if this user is the first to request. add him to requests
-                    recivingUser = await recivingUser.updateOne({$push:{friendRequests:req.params.id}},options)
-                    return res.status(200).json({detail:"resource updated",info:{friendRequests:recivingUser.friendRequests}})
-                }
+                    // sendingUser = await User.findByIdAndUpdate(req.params.id, {$push:{friends:req.params.friendId}},)
+                    // await recivingUser.updateOne({$push:{friends:req.params.id}})
+                    return res.status(200).json({detail:"new info",info:{
+                        friends:sendingUser.friends,
+                        friendRequests:sendingUser.friendRequests
+                    }})
+            }else{
+                // if this user is the first to request. add him to requests
+                // this adds the id => id 
+                recivingUser = await User.findByIdAndUpdate(req.params.friendId,{$addToSet:{friendRequests:req.params.id}},options)
+                return res.status(200).json({detail:"resource updated",info:{friendRequests:recivingUser.friendRequests}})
+            }
         }else{
             return res.status(404).json("user not found")
         }
@@ -137,11 +175,11 @@ const removeFriendRequest = async (req,res)=>{
         if (sendingUser && recivingUser){
             if (sendingUser.friendRequests.includes(req.params.friendId)){
                 // if user has them in his own friends list, remove them (decline)
-                sendingUser = await sendingUser.updateOne({$pull:{friendRequests:req.params.friendId}},options)
+                sendingUser = await User.findByIdAndUpdate(req.params.id,{$pull:{friendRequests:req.params.friendId}},options)
                 return res.status(200).json({detail:"new info",info:{friendRequests:sendingUser.friendRequests}})
             }else if (recivingUser.friendRequests.includes(req.params.id)){
                 // if its the other way around, the user wants to (undo)
-                recivingUser = await recivingUser.updateOne({$pull:{friendRequests:req.params.id}},options)
+                recivingUser = await User.findByIdAndUpdate(req.params.friendId,{$pull:{friendRequests:req.params.id}},options)
                 return res.status(200).json({detail:"resource updated",info:{friendRequests:recivingUser.friendRequests}})
             }
             else{
@@ -157,21 +195,21 @@ const removeFriendRequest = async (req,res)=>{
     }
 }
 
-const removefriend = async (req,res)=>{
+const removeFriend = async (req,res)=>{
     try {
         let sendingUser = await User.findById(req.params.id)
         const recivingUser = await User.findById(req.params.friendId)
         if (permission.areFriends(sendingUser,recivingUser)){
             if (sendingUser && recivingUser){
                 // remove the other user from both friend lists
-                sendingUser = await sendingUser.updateOne({$pull:{friends:req.params.friendId}}, options)
+                sendingUser = await User.findByIdAndUpdate(req.params.id,{$pull:{friends:req.params.friendId}}, options)
                 await recivingUser.updateOne({$pull:{friends:req.params.id}})
-                return req.status(200).json({detail:"new info",info:{friends:sendingUser.friends}})
+                return res.status(200).json({detail:"new info",info:{friends:sendingUser.friends}})
             }else{
                 return res.status(404).json("user not found")
             }
         }else{
-            return req.status(403).json("you cannot unfriend someone who is not your friend")
+            return res.status(403).json("you cannot unfriend someone who is not your friend")
         }
     } catch (error) {
         console.log(error);
@@ -187,8 +225,8 @@ const followUser = async (req,res)=>{
                 return res.status(400).json("you already follow this user")
             }else{
                 // they can follow this user...
-                sendingUser = await sendingUser.updateOne({$addToSet:{following:req.params.friendId}},options)
-                await recivingUser.updateOne({$addToSet:{followers:req.params.id}})
+                sendingUser = await User.findByIdAndUpdate(req.params.id,{$addToSet:{following:req.params.friendId}},options)
+                await recivingUser.updateOne({$addToSet:{followers:req.params.id}},options)
                 return res.status(200).json({detail:"new info",info:{following:sendingUser.following}})
             }
         }else{
@@ -209,8 +247,8 @@ const unfollowUser = async (req,res)=>{
                 return res.status(400).json("you don't follow this user")
             }else{
                 // they can unfollow this user...
-                sendingUser = await sendingUser.updateOne({$pull:{following:req.params.friendId}},options)
-                await recivingUser.updateOne({$pull:{followers:req.params.id}})
+                sendingUser = await User.findByIdAndUpdate(req.params.id,{$pull:{following:req.params.friendId}},options)
+                await recivingUser.updateOne({$pull:{followers:req.params.id}}, options)
                 return res.status(200).json({detail:"new info",info:{following:sendingUser.following}})
             }
         }else{
@@ -231,9 +269,9 @@ const removeFollower = async (req,res)=>{
                 return res.status(400).json("this user does not follow you")
             }else{
                 // they can remove this user...
-                sendingUser = await sendingUser.updateOne({$pull:{followers:req.params.friendId}},options)
-                await recivingUser.updateOne({$pull:{following:req.params.id}})
-                return res.status(200).json({detail:"new info",info:{followers:sendingUser.followers}})
+                sendingUser = await sendingUser.updateOne(req.params.id, {$pull:{followers:req.params.friendId}},options)
+                await recivingUser.updateOne({$pull:{following:req.params.id}},options)
+                return res.status(200).json({detail:"new info",info:{following:sendingUser.followers}})
             }
         }else{
             return res.status(404).json("user not found")
@@ -278,13 +316,33 @@ const recommend = async (req,res)=>{
     try {
         // add movie to reccomended of another user, 
         const sendingUser = await User.findById(req.params.id)
-        const recivingUser = await User.findById(req.params.friendId)
+        let recivingUser = await User.findById(req.params.friendId)
         if (sendingUser && recivingUser){
             if (permission.areFriends(sendingUser,recivingUser)){
-                await User.findByIdAndUpdate({_id:req.params.friendId},{$addToSet:{[`recommended.${req.params.movieId}`]:req.params.id}},options)
+                console.log(req.params.movieId)
+                recivingUser = await User.findByIdAndUpdate(req.params.friendId,{$addToSet:{[`recommended.${req.params.movieId}`]:req.params.id}},options)
                 return res.status(200).json({detail:"resource updated",info:presentableUser(recivingUser)})
             }else{
                 return res.status(403).json("you cannot recoomand movie to a non-friend")
+            }
+        }else{
+            return res.status(404).json("user not found")
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json("Something went wrong")
+    }
+}
+const unrecommend = async (req,res)=>{
+    try {
+        const sendingUser = await User.findById(req.params.id)
+        const recivingUser = await User.findById(req.params.friendId)
+        if (sendingUser && recivingUser){
+            if (permission.areFriends(sendingUser,recivingUser)){
+                await User.findByIdAndUpdate(req.params.friendId,{$pull:{[`recommended.${req.params.movieId}`]:req.params.id}},options)
+                return res.status(200).json({detail:"resource updated",info:presentableUser(recivingUser)})
+            }else{
+                return res.status(403).json("you cannot unrecoomand movie to a non-friend")
             }
         }else{
             return res.status(404).json("user not found")
@@ -375,17 +433,19 @@ module.exports = {
     addToWatchedMovies,
     removeFromRecommended,
     recommend,
+    unrecommend,
     removeFromWatchList,
     getUser,
     updateUser,
     deleteUser,
     addFriendRequest,
     removeFriendRequest,
-    removefriend,
+    removeFriend,
     followUser,
     unfollowUser,
     removeFollower,
     addToWatchList,
     removeFromWatchedMovies,
     getSampleUsers,
+    getFullPeopleList,
 }

@@ -18,6 +18,22 @@ router.get('/sample/:id',validId, (req,res)=>{
         return res.status(403).json("you dont have permission to to that.")
     }
 })
+// get full friends list
+router.get('/fullFriends/:id',validId, (req,res)=>{
+    if (permissions.isDocumentOwner(req)){
+        return userControl.getFullPeopleList(req,res,'friends')
+    }else{
+        return res.status(403).json("you dont have permission to to that.")
+    }
+})
+// get full friend requests list
+router.get('/fullFriendRequests/:id',validId, (req,res)=>{
+    if (permissions.isDocumentOwner(req)){
+        return userControl.getFullPeopleList(req,res, 'friendRequests')
+    }else{
+        return res.status(403).json("you dont have permission to to that.")
+    }
+})
 // update a user
 router.put('/:id',validId,(req,res)=>{
     if (permissions.isDocumentOwner(req)){
@@ -78,7 +94,7 @@ router.delete('/:id/friendrequest/:friendId',validId,validFriendId,(req,res)=>{
 // remove friend 
 router.delete('/:id/removefriend/:friendId',validId,validFriendId,(req,res)=>{
     if (permissions.isDocumentOwner(req)){
-        return userControl.removeFriendRequest(req,res)
+        return userControl.removeFriend(req,res)
     }else{
         return res.status(403).json("you dont have permission to to that.")
     }

@@ -36,11 +36,12 @@ export default function Home(){
             <Grid container sx={{marginTop:'12vh',width:{xs:"95%",sm:"75%"},alignItems:"center", justifyContent:"center", display:"inline-block"}}>
                 <Routes>
                     <Route path='MyProfile' element={<MyProfile user={user.info} api={api}/>}/>
-                    <Route path='users/:userId' element={<UserProfile api = {api} loggedUser={user.info}/>}/>
+                    <Route path='users/:username' element={<UserProfile api = {api} loggedUser={user.info}/>}/>
                     <Route path='users/' element={<Users api = {api}/>}/>
                     <Route path='watchList' element={<WatchList api={api} user={user.info}/>}/>
                     <Route path='movies/*' element={<MoviesBrowser api = {api} user={user.info}/>}/>
-                    <Route path='people/*' element={<PeopleBrowser api = {api} user={user.info}/>}/>
+                    <Route path='people/:list' element={<PeopleBrowser api = {api} user={user.info}/>}/>
+                    <Route path='people/' element={<PeopleBrowser api = {api} user={user.info}/>}/>
                 </Routes>
             </Grid>
             

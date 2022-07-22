@@ -1,15 +1,25 @@
 import { Avatar, IconButton, Paper, Typography, Box, Tooltip } from "@mui/material";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import PersonRemoveAlt1Icon from '@mui/icons-material/PersonRemoveAlt1';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import BlockIcon from '@mui/icons-material/Block';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
 import RecommendIcon from '@mui/icons-material/Recommend';
-import React from "react";
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function PersonCard (props){
-    return<Paper elevation={8} sx={{display:"flex", alignItems:"center", margin:"2%", padding:"2%"}}>
+
+    const isFriend = props.user.friends.includes(props.info._id)
+    const isFollowing = props.user.following.includes(props.info._id)
+    const isRequesting = props.user.friendRequests.includes(props.info._id)
+    const [amRequesting,setAmRequesting] = useState(props.info.friendRequests.includes(props.user._id))
+
+    return<Paper elevation={8} sx={{width:'70%',display:"flex", alignItems:"center", margin:"2%", padding:"2%"}}>
         <Tooltip title="View Profile">
-            <Box sx={{display:"flex",alignItems:"center"}}>
+            <Box component={Link} to={`../../users/${props.info.username}`} sx={{ textDecoration: 'none' , color:'black',display:"flex",alignItems:"center"}}>
                 <Avatar src={props.info.avatar} sx={{margin:"5%"}}>{props.info.username.charAt(1)}</Avatar>
                 <Typography component="h4" variant="h5">
                     {props.info.username}
@@ -18,25 +28,65 @@ export default function PersonCard (props){
         </Tooltip>
         
         <Box sx={{ flexGrow: 2 }} />
-        <Tooltip title={`Recommend a movie`}>
-            <IconButton>
+        {
+            isFriend&&<Tooltip title={`Recommend a movie`}>
+            <IconButton onClick={props.recommend}>
                 <RecommendIcon/>
             </IconButton>
         </Tooltip>
-        <Tooltip title={`Follow ${props.info.username}`}>
-            <IconButton>
-                <PersonAddIcon/>
+        }
+        {/* follow / unfollow */}
+        <Tooltip title={`${isFollowing?'Unfollow':'Follow'} ${props.info.username}`}>
+            <IconButton onClick={()=>(isFollowing?props.api.unfollowUser(props.info._id):props.api.followUser(props.info._id))}>
+                {isFollowing? <PersonRemoveIcon/>:<PersonAddIcon/>}
             </IconButton>
         </Tooltip>
         
-            
-        <Tooltip title="Send Friend Request">
-            <IconButton>
+        {/* {send friend request} */}
+        {(!isFriend&&!isRequesting&&!amRequesting)&&<Tooltip title = 'Send friend request'>
+            <IconButton onClick={()=>{
+                props.api.requestFriendship(props.info._id)
+                setAmRequesting(true)
+            }}>
                 <AddReactionIcon/>
             </IconButton>
-        </Tooltip>
+        </Tooltip>}
+        {/* {cancle friend request} */}
+        {(!isFriend&&amRequesting)&&<Tooltip title = 'Cancle friend request'>
+            <IconButton onClick={async ()=>{
+                await props.api.removeFriendshipRequest(props.info._id)
+                setAmRequesting(false)
+            }}>
+                <RemoveCircleIcon/>
+            </IconButton>
+        </Tooltip>}
+        {/* {remove friend} */}
+        {(isFriend)&&<Tooltip title = 'Remove friend'>
+            <IconButton onClick={()=>{
+                props.api.removeFriend(props.info._id)
+            }}>
+                <ThumbDownAltIcon/>
+            </IconButton>
+        </Tooltip>}
+        {/* {accept friend request} */}
+        {(!isFriend&&isRequesting)&&<Tooltip title = 'Accept friend'>
+            <IconButton onClick={()=>{
+                props.api.requestFriendship(props.info._id)
+            }}>
+                <AddBoxIcon/>
+            </IconButton>
+        </Tooltip>}
+        {/* {decline friend request} */}
+        {(!isFriend&&isRequesting)&&<Tooltip title = 'Decline friend request'>
+            <IconButton onClick={()=>{
+                props.api.removeFriendshipRequest(props.info._id)
+            }}>
+                <RemoveCircleIcon/>
+            </IconButton>
+        </Tooltip>}
+
         <Tooltip title={`Block ${props.info.username}`}>
-            <IconButton>
+            <IconButton disabled>
                 <BlockIcon/>
             </IconButton>
         </Tooltip>
