@@ -3,13 +3,13 @@ import { useParams } from "react-router-dom";
 
 
 export default function UserProfile(props){
-    const {userId} = useParams()
+    const {username} = useParams()
     
     return(
         <Box>
             <Typography>
-                User {userId}
-                {props.loggedUser&& props.loggedUser._id}
+                User {username}
+                {props.loggedUser.username}
             </Typography>
         </Box>
     )

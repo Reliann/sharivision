@@ -8,20 +8,20 @@ const validId = (req,res,next)=>{
     
     next()
 }
-const validFriendId = (next)=>{
+const validFriendId = (req,res,next)=>{
     if(req.params.friendId && !req.params.friendId.match(/^[a-fA-F0-9]{24}$/)){
         return res.status(400).json("invalid Id")
     }
     next()
 }
 
-const validAuthorId = (next)=>{
+const validAuthorId = (req,res,next)=>{
     if(req.body.author && !req.body.author.match(/^[a-fA-F0-9]{24}$/)){
         return res.status(400).json("invalid Id")
     }
     next()
 }
-const validUserId = (next)=>{
+const validUserId = (req,res,next)=>{
     if(req.params.userId && !req.params.userId.match(/^[a-fA-F0-9]{24}$/)){
         return res.status(400).json("invalid Id")
     }

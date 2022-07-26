@@ -16,7 +16,7 @@ export default function Signup(){
         remember:true,
         showPassword:false
     })
-    const {register} = useAxios()
+    const {register, login} = useAxios()
     const [message,setMessage] = useState({
         username:"",
         password:"",
@@ -39,7 +39,14 @@ export default function Signup(){
         }
         const {showPassword,...registrationData} = values
         try {
-            await register(registrationData)
+            const resp = await register(registrationData)
+            if (resp.status === 201){
+                const credentials = {
+                    email:registrationData.email,
+                    password: registrationData.password
+                }
+                await login(credentials)
+            }
         } catch (error) {
             if ([400,404].includes(error.response.status)){
                 setMessage(error.response.data)

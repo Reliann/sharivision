@@ -66,7 +66,7 @@ const UserSchema = new mongo.Schema({
         type:[String],
         default:[],
     },
-    recommanded:{
+    recommended:{
         type: Map,
         of:[String],
         default:{}
