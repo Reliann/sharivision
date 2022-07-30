@@ -2,7 +2,9 @@ const User = require('../models/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const {OAuth2Client} = require('google-auth-library')
+// for path auth!
 
+const authpath = 'api/auth'
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 const getAcssesToken = (content)=>{
@@ -41,7 +43,7 @@ const register = async (req, res)=>{
         const refreshToken = getRefreshToken({id:user._id})
         res.cookie('refreshtoken', refreshToken, {
             httpOnly: true,
-            path: '/api/refresh',
+            path: `${authpath}/refresh`,
         })
         const {password,...doc} = user._doc
         return res.status(201).json({token:accessToken,user:doc})    
@@ -68,7 +70,7 @@ const login = async (req,res)=>{
                 const refreshToken = getRefreshToken({id:user._id})
                 res.cookie('refreshtoken', refreshToken, {
                     httpOnly: true,
-                    path: '/api/refresh',
+                    path: `${authpath}/refresh`,
                     maxAge: req.body.remember&&30*24*60*60*1000 // 30days
                 })
                 const {password,...doc} = user._doc
@@ -102,6 +104,7 @@ const refreshToken= async (req, res) => {
             return res.status(401).json("Login Required")
         }
     } catch (err) {
+        console.log(err);
         return res.status(500).json({msg: err.message})
     }
 }
@@ -129,7 +132,7 @@ const resetPassword = async (req,res)=>{
 const logout = async (req,res)=>{
     // clear the refresh cookie...
     try {
-        res.clearCookie('refreshtoken', {path: '/user/refresh'})
+        res.clearCookie('refreshtoken', {path: `${authpath}/refresh`})
         return res.json("Logged out")
     } catch (err) {
         return res.status(500).json("Some error happend here..")
@@ -154,7 +157,7 @@ const googleLogin = async (req,res)=>{
                     const refreshToken = getRefreshToken({id:user._id})
                     res.cookie('refreshtoken', refreshToken, {
                         httpOnly: true,
-                        path: '/api/refresh',
+                        path: `${authpath}/refresh`,
                         maxAge: remember&&30*24*60*60*1000 // 30days
                     })
                     const {password,...doc} = user._doc
@@ -176,7 +179,7 @@ const googleLogin = async (req,res)=>{
                     const refreshToken = getRefreshToken({id:user._id})
                     res.cookie('refreshtoken', refreshToken, {
                         httpOnly: true,
-                        path: '/api/refresh',
+                        path: `${authpath}/refresh`,
                         maxAge: remember&&30*24*60*60*1000 // 30days
                     })
                     const {password,...doc} = user._doc

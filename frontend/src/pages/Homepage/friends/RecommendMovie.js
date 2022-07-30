@@ -12,7 +12,7 @@ export default function RecommendMovie(props){
         e.preventDefault()
         setSearch(e.target.elements.search.value)
     }
-    return <Box sx={{width:'70vw', height:'70vh',display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
+    return <Box sx={{padding:'2%',display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
         {/* searchbox for movies */}
         <Typography>
                 {`Reccomend movie to ${props.friend.username}`}
@@ -21,14 +21,14 @@ export default function RecommendMovie(props){
             <TextField defaultValue={''} name='search' type='search'/>
             <Button type='submit' startIcon={<Search/>}>Search</Button>
         </Box>
-        <SummerizedMoviesGrid api={props.api} search = {search} friend = {props.friend}/>
+        <SummerizedMoviesGrid api={props.api} search = {search} friend = {props.friend} user={props.user}/>
         <Typography>
-            your favorites
+            Your Favorites
         </Typography>
-        <SummerizedMoviesGrid api={props.api} movies = {props.user.favorites} friend = {props.friend}/>
+        <SummerizedMoviesGrid api={props.api} movies = {props.user.favorites} friend = {props.friend} user={props.user}/>
         <Typography>
-            your watched movies
+            Your Watched Movies
         </Typography>
-        <SummerizedMoviesGrid api={props.api} movies = {props.user.watchedList} friend = {props.friend}/>
+        <SummerizedMoviesGrid api={props.api} movies = {props.user.watchedList} friend = {props.friend} user={props.user}/>
     </Box>
 }

@@ -56,7 +56,7 @@ export default function PeopleBrowser(props){
             ))}
         </Box>
         {/* dialog to reccomend a movie */}
-        <Dialog open={Object.keys(dialog).length !== 0 } onClose={()=>setDialog({})} sx={{overflowY:'scroll'}}>
+        <Dialog open={Object.keys(dialog).length !== 0 } onClose={()=>setDialog({})} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
             <RecommendMovie api={props.api} user = {props.user} friend={dialog} updateFriend={
                 (rec,m)=>{
                     let newppl = people

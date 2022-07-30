@@ -44,11 +44,11 @@ export default function SummerizedMoviesGrid(props){
         
     }, [props.search, props.movies])
 
-    return <Grid sx={{flexDirection:'column'}}>
+    return <Grid sx={{flexDirection:'column', width:'100%'}}>
         {
-            movies.map(movie=><SummerizedCard clb ={m=>setMsg(m)} key={movie.id} data={movie} api = {props.api} friend= {props.friend}/>)
+            movies.map(movie=><SummerizedCard clb ={m=>setMsg(m)} key={movie.id} data={movie} api = {props.api} friend= {props.friend} user={props.user}/>)
         }
-        <Dialog open={msg} onClose={()=>setMsg('')}>
+        <Dialog open={msg} onClose={()=>setMsg('')} sx={{zIndex:'1402'}}>
             {msg}
         </Dialog>
     </Grid>

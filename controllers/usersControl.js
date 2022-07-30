@@ -25,6 +25,19 @@ const getUser = async (req,res)=>{
         return res.status(500).json("Something went wrong")
     }
 }
+const getUserbyName = async (req,res)=>{
+    try {
+        const user = await User.findOne({username:req.params.username})
+        if(user){
+            return res.status(200).json(presentableUser(user))
+        }else{
+            return res.status(404).json("User not found")
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json("Something went wrong")
+    }
+}
 const getSampleUsers = async (req,res)=>{
     try {
         const user = await User.findById(req.params.id)
@@ -436,6 +449,7 @@ module.exports = {
     unrecommend,
     removeFromWatchList,
     getUser,
+    getUserbyName,
     updateUser,
     deleteUser,
     addFriendRequest,

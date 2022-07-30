@@ -120,6 +120,7 @@ export default function useAxios(){
         logout:logout,
         googleLogin:googleLogin,
         // user route
+        getUserByName:(identifier)=>(shariApi.get(`users/${identifier}`)),
         updateUser:(payload)=>(shariApi.put(`users/${user.info._id}`,payload)),
         deleteUser:()=>(shariApi.delete(`users/${user.info._id}`)),
         //uploadSignature:()=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`)),
