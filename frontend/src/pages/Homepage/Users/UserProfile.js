@@ -1,11 +1,13 @@
-import { Avatar, Box, Button, Typography } from "@mui/material";
+import { Avatar, Box, Button, Dialog, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import RecommendMovie from "../friends/RecommendMovie";
 
 
 export default function UserProfile(props){
     const {username} = useParams()
     const [user,setUser] = useState()
+    const [recOpen,setRecOpen] = useState(false)
     const navigate = useNavigate()
     const getUser = async ()=>{
         try {
@@ -44,11 +46,18 @@ export default function UserProfile(props){
                 <Button>
                     Follow
                 </Button>
-                <Button>
+                <Button onClick={()=>(setRecOpen(true))}>
                     Recommend
                 </Button>
             </Box>
             {/* show user's recent posts and comments */}
+            <Dialog open={recOpen} onClose={()=>{setRecOpen(false)}} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
+                <RecommendMovie api={props.api} user = {props.loggedUser} friend={user} updateFriend={
+                    (movie)=>{
+                        setUser({...user,recommended:{...user.recommended,[movie]:props.loggedUser._id}})
+                    }
+                }/>
+            </Dialog>
         </Box>
     )
 }

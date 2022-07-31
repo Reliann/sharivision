@@ -11,7 +11,7 @@ const baseConfig = {
     timeout: 10000,
     headers: {
         'Accept': 'application/json',
-        'responseType': "application/json"
+        'responseType': "application/json",
     }}
 
 export default function useAxios(){
@@ -63,7 +63,8 @@ export default function useAxios(){
         return resp
     }
     const refreshTokens = async()=>{
-        const resp = await axios.post('auth/refresh',{},baseConfig)
+        // {withCredentials: true, credentials: 'include'} for the lovely cookie 
+        const resp = await axios.post('auth/refresh',{withCredentials: true, credentials: 'include'},baseConfig)
         if(resp.status===200){
             setUser({...user,token:resp.data.token})
         }else{
@@ -123,6 +124,7 @@ export default function useAxios(){
         getUserByName:(identifier)=>(shariApi.get(`users/${identifier}`)),
         updateUser:(payload)=>(shariApi.put(`users/${user.info._id}`,payload)),
         deleteUser:()=>(shariApi.delete(`users/${user.info._id}`)),
+        removeMovieRecommenation:(movieId)=>(shariApi.delete(`users/${user.info._id}/recommend/${movieId}`)),
         //uploadSignature:()=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`)),
         //uploadAvatar:(payload)=>(shariApi.patch(`users/${user.info._id}/avatar`,payload)),
         // people 
@@ -139,7 +141,7 @@ export default function useAxios(){
         unfollowUser:(friendId)=>(shariApi.delete(`users/${user.info._id}/follow/${friendId}`)),
         removeFollower:(friendId)=>(shariApi.delete(`users/${user.info._id}/removefollower/${friendId}`)),
         recommendMovie:(movieId, friendId)=>(shariApi.post(`users/${user.info._id}/recommend/${movieId}/${friendId}`)),
-        removeRecommenation:(movieId)=>(shariApi.delete(`users/${user.info._id}/recommend/${movieId}`)),
+        removeRecommenation:(movieId, friendId)=>(shariApi.delete(`users/${user.info._id}/recommend/${movieId}/${friendId}`)),
         addMovieTowatchedMovies:(movieId)=>(shariApi.post(`users/${user.info._id}/watched/${movieId}`)),
         removeMovieFromWatchedMovies:(movieId)=>(shariApi.delete(`users/${user.info._id}/watched/${movieId}`)),
         addMovieToFavorites:(movieId)=>(shariApi.post(`users/${user.info._id}/favorite/${movieId}`)),

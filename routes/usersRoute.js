@@ -156,6 +156,13 @@ router.post('/:id/recommend/:movieId/:friendId',validId,validFriendId,(req,res)=
         return res.status(403).json("you dont have permission to to that.")
     }
 })
+router.delete('/:id/recommend/:movieId/:friendId',validId,validFriendId,(req,res)=>{
+    if (permissions.isDocumentOwner(req)){
+        return userControl.unrecommend(req,res)
+    }else{
+        return res.status(403).json("you dont have permission to to that.")
+    }
+})
 // remove movie from recommanded
 router.delete('/:id/recommend/:movieId',validId,(req,res)=>{
     if (permissions.isDocumentOwner(req)){

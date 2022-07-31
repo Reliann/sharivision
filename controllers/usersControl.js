@@ -349,10 +349,14 @@ const recommend = async (req,res)=>{
 const unrecommend = async (req,res)=>{
     try {
         const sendingUser = await User.findById(req.params.id)
-        const recivingUser = await User.findById(req.params.friendId)
+        let recivingUser = await User.findById(req.params.friendId)
         if (sendingUser && recivingUser){
             if (permission.areFriends(sendingUser,recivingUser)){
-                await User.findByIdAndUpdate(req.params.friendId,{$pull:{[`recommended.${req.params.movieId}`]:req.params.id}},options)
+                recivingUser = await User.findByIdAndUpdate(req.params.friendId,{$pull:{[`recommended.${req.params.movieId}`]:req.params.id}},options)
+                const recoList = recivingUser.recommended.get(req.params.movieId)
+                if (recoList && recoList.length===0){
+                    await User.findByIdAndUpdate(req.params.friendId,{$unset:{[`recommended.${req.params.movieId}`]:""}},options)
+                }
                 return res.status(200).json({detail:"resource updated",info:presentableUser(recivingUser)})
             }else{
                 return res.status(403).json("you cannot unrecoomand movie to a non-friend")
