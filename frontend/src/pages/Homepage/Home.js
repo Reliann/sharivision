@@ -22,6 +22,7 @@ export default function Home(){
     const toggleDrawer= ()=>{
         setDrawer(!drawer)
     }
+    console.log(Object.keys(user).length,1);
     if (Object.keys(user).length===0){
         return (
             <Box>
@@ -31,17 +32,17 @@ export default function Home(){
     }
     return (
         <Box sx={{ width:'100%' , display:'flex', justifyContent:'right'}} >
-            <Navbar toggleDrawer={toggleDrawer} logout={api.logout} userId={user.info?._id} avatarSrc={user.info?.avatar}/>
+            <Navbar toggleDrawer={toggleDrawer} logout={api.logout} userId={user?._id} avatarSrc={user?.avatar}/>
             <MenuDrawer logout={api.logout} open = {drawer} toggleDrawer={toggleDrawer}/>
             <Grid container sx={{marginTop:'12vh',width:{xs:"95%",sm:"75%"},alignItems:"center", justifyContent:"center", display:"inline-block"}}>
                 <Routes>
-                    <Route path='MyProfile' element={<MyProfile user={user.info} api={api}/>}/>
-                    <Route path='users/:username' element={<UserProfile api = {api} loggedUser={user.info}/>}/>
+                    <Route path='MyProfile' element={<MyProfile user={user} api={api}/>}/>
+                    <Route path='users/:username' element={<UserProfile api = {api} loggedUser={user}/>}/>
                     <Route path='users/' element={<Users api = {api}/>}/>
-                    <Route path='watchList' element={<WatchList api={api} user={user.info}/>}/>
-                    <Route path='movies/*' element={<MoviesBrowser api = {api} user={user.info}/>}/>
-                    <Route path='people/:list' element={<PeopleBrowser api = {api} user={user.info}/>}/>
-                    <Route path='people/' element={<PeopleBrowser api = {api} user={user.info}/>}/>
+                    <Route path='watchList' element={<WatchList api={api} user={user}/>}/>
+                    <Route path='movies/*' element={<MoviesBrowser api = {api} user={user}/>}/>
+                    <Route path='people/:list' element={<PeopleBrowser api = {api} user={user}/>}/>
+                    <Route path='people/' element={<PeopleBrowser api = {api} user={user}/>}/>
                 </Routes>
             </Grid>
             

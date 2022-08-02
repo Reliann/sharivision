@@ -78,9 +78,9 @@ export default function MoviesGrid(props){
         {
             
             movies.slice(0,20).map(movie=>{
-                const favorite = user.info.favorites.includes(movie.id.toString())
-                const watched = user.info.watchedList.includes(movie.id.toString())
-                const toWatch = user.info.watchList.includes(movie.id.toString())
+                const favorite = user.favorites.includes(movie.id.toString())
+                const watched = user.watchedList.includes(movie.id.toString())
+                const toWatch = user.watchList.includes(movie.id.toString())
                 return <Grid item key={movie.id} sx={{margin:'5px'}}>
                     <MovieCard data={movie} favorite={favorite} watched={watched} toWatch={toWatch}
                     clickOnFavorite={async ()=>{

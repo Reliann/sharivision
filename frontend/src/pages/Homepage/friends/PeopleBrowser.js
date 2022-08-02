@@ -12,7 +12,6 @@ export default function PeopleBrowser(props){
     const [loading,setLoading]  = useState(true)
     const [dialog, setDialog] = useState({})
     const {list} = useParams()
-    console.log(people);
 
     const getPeople = async ()=>{
         let resp
@@ -35,7 +34,10 @@ export default function PeopleBrowser(props){
         getPeople()
     },[list])
 
-    if (people.length === 0 &&!loading){
+   
+
+console.log(people, people.length, 90);
+    if (people.length === 0 ){
         return <Box sx={{display:'flex', justifyContent:'center', alignItems:'center', height:'100%'}}>
             <Typography variant='h3' component='h2'>
                 No one to see here...

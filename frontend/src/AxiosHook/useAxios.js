@@ -5,18 +5,22 @@ import AuthContext from '../context/context';
 
 // 2 types of clients - my server, and the tv api
 // this is the same for every request
-
+console.log(process.env.REACT_APP_DEV_URL);
 const baseConfig = {
-    baseURL: '/api/',
+    baseURL: process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_PROD_URL
+    : process.env.REACT_APP_DEV_URL,
     timeout: 10000,
     headers: {
         'Accept': 'application/json',
         'responseType': "application/json",
+        withCredentials: true, 
+        credentials: 'include'
     }}
 
 export default function useAxios(){
     
-    const {user, setUser, setMsg} = useContext(AuthContext)
+    const {setUser, setMsg, user, token} = useContext(AuthContext)
     console.log(user);
     const navigate = useNavigate()
     // those routes shouldn't use interceptors...
@@ -64,9 +68,9 @@ export default function useAxios(){
     }
     const refreshTokens = async()=>{
         // {withCredentials: true, credentials: 'include'} for the lovely cookie 
-        const resp = await axios.post('auth/refresh',{withCredentials: true, credentials: 'include'},baseConfig)
+        const resp = await axios.post('auth/refresh',baseConfig)
         if(resp.status===200){
-            setUser({...user,token:resp.data.token})
+            setUser({info:{...user},token:resp.data.token})
         }else{
             // if tokens can't be refreshed, a login is required
             logout()
@@ -76,7 +80,7 @@ export default function useAxios(){
     // Add a request interceptor for shari
     shariApi.interceptors.request.use(function (config) {
         // Before request is sent, add auth header 
-        config.headers.Authorization = `JWT ${user.token}`
+        config.headers.Authorization = `JWT ${token}`
         return config;
     }, function (error){
         // probably network error
@@ -88,7 +92,7 @@ export default function useAxios(){
         (res)=>{
             if (res.data?.detail==="new info"){
                 // if new info is recived update the user's info...
-                setUser({...user,info:{...user.info,...res.data.info}})
+                setUser({...user,info:{...user,...res.data.info}})
             }
             return res
         },
@@ -98,6 +102,7 @@ export default function useAxios(){
             console.dir(error);
             if (error.response.status === 401){
                 const resp = await refreshTokens()
+                console.log(resp);
                 if (resp.status === 200){
                     let og_request = error.config
                     og_request.headers.Authorization = `JWT ${resp.data.token}` 
@@ -122,34 +127,34 @@ export default function useAxios(){
         googleLogin:googleLogin,
         // user route
         getUserByName:(identifier)=>(shariApi.get(`users/${identifier}`)),
-        updateUser:(payload)=>(shariApi.put(`users/${user.info._id}`,payload)),
-        deleteUser:()=>(shariApi.delete(`users/${user.info._id}`)),
-        removeMovieRecommenation:(movieId)=>(shariApi.delete(`users/${user.info._id}/recommend/${movieId}`)),
-        //uploadSignature:()=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`)),
-        //uploadAvatar:(payload)=>(shariApi.patch(`users/${user.info._id}/avatar`,payload)),
+        updateUser:(payload)=>(shariApi.put(`users/${user._id}`,payload)),
+        deleteUser:()=>(shariApi.delete(`users/${user._id}`)),
+        removeMovieRecommenation:(movieId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}`)),
+        //uploadSignature:()=>(shariApi.get(`users/${user._id}/avatar-upload-signature`)),
+        //uploadAvatar:(payload)=>(shariApi.patch(`users/${user._id}/avatar`,payload)),
         // people 
-        sampleUsers:()=>(shariApi.get(`users/sample/${user.info._id}`)),
-        fullFriends:()=>shariApi.get(`users/fullFriends/${user.info._id}`),
-        fullFriendRequests:()=>shariApi.get(`users/fullFriendRequests/${user.info._id}`),
+        sampleUsers:()=>(shariApi.get(`users/sample/${user._id}`)),
+        fullFriends:()=>shariApi.get(`users/fullFriends/${user._id}`),
+        fullFriendRequests:()=>shariApi.get(`users/fullFriendRequests/${user._id}`),
         //lists
-        addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user.info._id}/watchlist/${movieId}`)),
-        removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user.info._id}/watchlist/${movieId}`)),
-        requestFriendship:(friendId)=>(shariApi.post(`users/${user.info._id}/friendrequest/${friendId}`)),
-        removeFriendshipRequest:(friendId)=>(shariApi.delete(`users/${user.info._id}/friendrequest/${friendId}`)),
-        removeFriend:(friendId)=>(shariApi.delete(`users/${user.info._id}/removefriend/${friendId}`)),
-        followUser:(friendId)=>(shariApi.post(`users/${user.info._id}/follow/${friendId}`)),
-        unfollowUser:(friendId)=>(shariApi.delete(`users/${user.info._id}/follow/${friendId}`)),
-        removeFollower:(friendId)=>(shariApi.delete(`users/${user.info._id}/removefollower/${friendId}`)),
-        recommendMovie:(movieId, friendId)=>(shariApi.post(`users/${user.info._id}/recommend/${movieId}/${friendId}`)),
-        removeRecommenation:(movieId, friendId)=>(shariApi.delete(`users/${user.info._id}/recommend/${movieId}/${friendId}`)),
-        addMovieTowatchedMovies:(movieId)=>(shariApi.post(`users/${user.info._id}/watched/${movieId}`)),
-        removeMovieFromWatchedMovies:(movieId)=>(shariApi.delete(`users/${user.info._id}/watched/${movieId}`)),
-        addMovieToFavorites:(movieId)=>(shariApi.post(`users/${user.info._id}/favorite/${movieId}`)),
-        removeMovieFromFavorites:(movieId)=>(shariApi.delete(`users/${user.info._id}/favorite/${movieId}`)),
+        addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user._id}/watchlist/${movieId}`)),
+        removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user._id}/watchlist/${movieId}`)),
+        requestFriendship:(friendId)=>(shariApi.post(`users/${user._id}/friendrequest/${friendId}`)),
+        removeFriendshipRequest:(friendId)=>(shariApi.delete(`users/${user._id}/friendrequest/${friendId}`)),
+        removeFriend:(friendId)=>(shariApi.delete(`users/${user._id}/removefriend/${friendId}`)),
+        followUser:(friendId)=>(shariApi.post(`users/${user._id}/follow/${friendId}`)),
+        unfollowUser:(friendId)=>(shariApi.delete(`users/${user._id}/follow/${friendId}`)),
+        removeFollower:(friendId)=>(shariApi.delete(`users/${user._id}/removefollower/${friendId}`)),
+        recommendMovie:(movieId, friendId)=>(shariApi.post(`users/${user._id}/recommend/${movieId}/${friendId}`)),
+        removeRecommenation:(movieId, friendId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}/${friendId}`)),
+        addMovieTowatchedMovies:(movieId)=>(shariApi.post(`users/${user._id}/watched/${movieId}`)),
+        removeMovieFromWatchedMovies:(movieId)=>(shariApi.delete(`users/${user._id}/watched/${movieId}`)),
+        addMovieToFavorites:(movieId)=>(shariApi.post(`users/${user._id}/favorite/${movieId}`)),
+        removeMovieFromFavorites:(movieId)=>(shariApi.delete(`users/${user._id}/favorite/${movieId}`)),
         // upload routes 
-        signUpload:(params)=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`,{params:params})),
-        uploadAvatar:(avatar_url)=>(shariApi.patch(`users/${user.info._id}/avatar`,{avatar_url:avatar_url})),
-        deleteAvatar:()=>(shariApi.delete(`users/${user.info._id}/avatar`)),
+        signUpload:(params)=>(shariApi.get(`users/${user._id}/avatar-upload-signature`,{params:params})),
+        uploadAvatar:(avatar_url)=>(shariApi.patch(`users/${user._id}/avatar`,{avatar_url:avatar_url})),
+        deleteAvatar:()=>(shariApi.delete(`users/${user._id}/avatar`)),
         // posts route
         // ....
         // comments route

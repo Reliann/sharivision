@@ -5,8 +5,7 @@ const AuthContext = createContext()
 export default AuthContext
 
 export function ContextProvider({children}){
-    const [user,setUser] = useState(JSON.parse(localStorage.getItem('user')) || {})
-    const [token, setToken] = useState("")
+    const [user,setUser] = useState(JSON.parse(localStorage.getItem('user')) || {info:{},token:{}})
     const [loading,setLoading] = useState(false)
     const [msg,setMsg] = useState("")
 
@@ -15,14 +14,14 @@ export function ContextProvider({children}){
         localStorage.setItem('user', JSON.stringify(user))
     },[user])
     const contextExports = {
-        user:user,
-        tokens:token,
+        user:user.info,
+        token:user.token,
         msg:msg,
         loading:loading,
         setLoading:setLoading,
         setMsg:setMsg,
         setUser:setUser,
-        setToken:setToken
+        //setToken:setToken
     }
     return <AuthContext.Provider value={contextExports}>
         {children}
