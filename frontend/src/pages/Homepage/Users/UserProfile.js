@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Dialog, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import RecommendMovie from "../friends/RecommendMovie";
-
+import ProgressButton from '../../utils/ProgressButton'
 
 export default function UserProfile(props){
     const {username} = useParams()
@@ -46,6 +46,7 @@ export default function UserProfile(props){
                 <Button>
                     Follow
                 </Button>
+                <ProgressButton/>
                 <Button onClick={()=>(setRecOpen(true))}>
                     Recommend
                 </Button>

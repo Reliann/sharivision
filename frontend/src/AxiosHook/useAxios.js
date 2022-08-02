@@ -5,17 +5,14 @@ import AuthContext from '../context/context';
 
 // 2 types of clients - my server, and the tv api
 // this is the same for every request
-console.log(process.env.REACT_APP_DEV_URL);
+
 const baseConfig = {
-    baseURL: process.env.NODE_ENV === "production"
-    ? process.env.REACT_APP_PROD_URL
-    : process.env.REACT_APP_DEV_URL,
+    //baseURL: '/api',
+    //url:'/api',
     timeout: 10000,
     headers: {
         'Accept': 'application/json',
         'responseType': "application/json",
-        withCredentials: true, 
-        credentials: 'include'
     }}
 
 export default function useAxios(){
@@ -68,7 +65,7 @@ export default function useAxios(){
     }
     const refreshTokens = async()=>{
         // {withCredentials: true, credentials: 'include'} for the lovely cookie 
-        const resp = await axios.post('auth/refresh',baseConfig)
+        const resp = await axios.post('auth/refresh',{withCredentials: true, credentials: 'include'},baseConfig)
         if(resp.status===200){
             setUser({info:{...user},token:resp.data.token})
         }else{

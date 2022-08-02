@@ -23,7 +23,9 @@ const auth = async (req,res,next)=>{
                 // laziness.
                 res.status(401).json("Login Required")
             }else{
-                res.status(400).json("bad authorization")
+                // this happens when someone tampered with tokens 
+                // aka me so its 401 instead of 400 for now
+                res.status(401).json("bad authorization")
             }
         }
     }

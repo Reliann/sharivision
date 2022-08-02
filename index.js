@@ -4,7 +4,7 @@ const helmet = require('helmet')
 const morgan = require('morgan')
 const cors = require('cors')
 const path = require("path");
-
+const cookieParser = require('cookie-parser');
 // auth middleware
 const jwtAuth = require('./middleware/jwtMiddleware')
 // local env 
@@ -34,11 +34,12 @@ const app = express()
 // }
 
 // middleware 
-
 //app.use(cors(corsConfig))
 app.use(express.json())
 app.use(helmet())
 app.use(morgan('common'))
+app.use(cookieParser())
+
 
 // Todo: validate all id's are those of existing posts
 // routes 

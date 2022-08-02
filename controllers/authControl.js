@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const {OAuth2Client} = require('google-auth-library')
 // for path auth!
 
-const authpath = 'api/auth'
+//const authpath = 'api/auth'
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 const getAcssesToken = (content)=>{
@@ -43,7 +43,7 @@ const register = async (req, res)=>{
         const refreshToken = getRefreshToken({id:user._id})
         res.cookie('refreshtoken', refreshToken, {
             httpOnly: true,
-            path: `${authpath}/refresh`,
+            //path: `${authpath}/refresh`,
         })
         const {password,...doc} = user._doc
         return res.status(201).json({token:accessToken,user:doc})    
@@ -70,7 +70,7 @@ const login = async (req,res)=>{
                 const refreshToken = getRefreshToken({id:user._id})
                 res.cookie('refreshtoken', refreshToken, {
                     httpOnly: true,
-                    path: `${authpath}/refresh`,
+                    //path: `${authpath}/refresh`,
                     maxAge: req.body.remember&&30*24*60*60*1000 // 30days
                 })
                 const {password,...doc} = user._doc
@@ -97,8 +97,8 @@ const refreshToken= async (req, res) => {
                 if(err) return res.status(401).json("Login Required")
                 const user = await User.findById(result.id)
                 if(!user) return res.status(404).json("user not found")
-                const access_token = createAccessToken({id: result.id})
-                return res.status(200).json({access:access_token})
+                const access_token = getAcssesToken({id: result.id})
+                return res.status(200).json({token:access_token})
             })
         }else{
             return res.status(401).json("Login Required")
@@ -157,10 +157,11 @@ const googleLogin = async (req,res)=>{
                     const refreshToken = getRefreshToken({id:user._id})
                     res.cookie('refreshtoken', refreshToken, {
                         httpOnly: true,
-                        path: `${authpath}/refresh`,
+                        //path: `${authpath}/refresh`,
                         maxAge: remember&&30*24*60*60*1000 // 30days
                     })
                     const {password,...doc} = user._doc
+                    console.log(res.cookie);
                     return res.status(200).json({token:accessToken,user:doc})
                 }else{
                     return res.status(409).json({msg:"password incorrect, perhaps you did not sign up with google?"})
@@ -179,7 +180,7 @@ const googleLogin = async (req,res)=>{
                     const refreshToken = getRefreshToken({id:user._id})
                     res.cookie('refreshtoken', refreshToken, {
                         httpOnly: true,
-                        path: `${authpath}/refresh`,
+                        //path: `${authpath}/refresh`,
                         maxAge: remember&&30*24*60*60*1000 // 30days
                     })
                     const {password,...doc} = user._doc
