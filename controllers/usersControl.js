@@ -10,7 +10,7 @@ const options = {new:true}
 // query for users by usernames
 
 // TODO: remove inclue() and quary for the user itself 
-
+// TODO: return info about changed user
 // get a user
 const getUser = async (req,res)=>{
     try {

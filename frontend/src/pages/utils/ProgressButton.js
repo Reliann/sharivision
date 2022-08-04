@@ -4,49 +4,24 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { green } from '@mui/material/colors';
 import Button from '@mui/material/Button';
 
-export default function ProgressButton() {
-  const [loading, setLoading] = React.useState(false);
-  const [success, setSuccess] = React.useState(false);
-  const timer = React.useRef();
+export default function ProgressButton(props) {
+  // props.text
+  // props.onClick
+  // props. loading
+  // props.sx
 
-  const buttonSx = {
-    ...(success && {
-      bgcolor: green[500],
-      '&:hover': {
-        bgcolor: green[700],
-      },
-    }),
-  };
-
-  React.useEffect(() => {
-    return () => {
-      clearTimeout(timer.current);
-    };
-  }, []);
-
-  const handleButtonClick = () => {
-    if (!loading) {
-      setSuccess(false);
-      setLoading(true);
-      timer.current = window.setTimeout(() => {
-        setSuccess(true);
-        setLoading(false);
-      }, 2000);
-    }
-  };
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ m: 1, position: 'relative' }}>
         <Button
-          variant="contained"
-          sx={buttonSx}
-          disabled={loading}
-          onClick={handleButtonClick}
+          variant="outlined"
+          disabled={props.loading}
+          onClick={props.onClick}
         >
-          Accept terms
+          {props.text}
         </Button>
-        {loading && (
+        {props.loading && (
           <CircularProgress
             size={24}
             sx={{

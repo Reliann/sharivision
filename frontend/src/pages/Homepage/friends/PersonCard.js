@@ -14,6 +14,7 @@ export default function PersonCard (props){
 
     const isFriend = props.user.friends.includes(props.info._id)
     const isFollowing = props.user.following.includes(props.info._id)
+    console.log(props.user.following,props.info._id)
     const isRequesting = props.user.friendRequests.includes(props.info._id)
     const [amRequesting,setAmRequesting] = useState(props.info.friendRequests.includes(props.user._id))
 

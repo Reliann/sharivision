@@ -89,7 +89,7 @@ export default function useAxios(){
         (res)=>{
             if (res.data?.detail==="new info"){
                 // if new info is recived update the user's info...
-                setUser({...user,info:{...user,...res.data.info}})
+                setUser({info:{...user,...res.data.info},token:token})
             }
             return res
         },

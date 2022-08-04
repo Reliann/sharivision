@@ -90,7 +90,6 @@ const login = async (req,res)=>{
 const refreshToken= async (req, res) => {
     // when the client wants to get a new acsses token
     try {
-        console.log(req.cookies);
         const refreshToken = req.cookies.refreshtoken
         if(refreshToken) {
             jwt.verify(refreshToken, process.env.refresh_SECRET, async(err, result) => {
@@ -132,7 +131,7 @@ const resetPassword = async (req,res)=>{
 const logout = async (req,res)=>{
     // clear the refresh cookie...
     try {
-        res.clearCookie('refreshtoken', {path: `${authpath}/refresh`})
+        res.clearCookie('refreshtoken')
         return res.json("Logged out")
     } catch (err) {
         return res.status(500).json("Some error happend here..")

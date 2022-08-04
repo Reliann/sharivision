@@ -8,7 +8,16 @@ export default function UserProfile(props){
     const {username} = useParams()
     const [user,setUser] = useState()
     const [recOpen,setRecOpen] = useState(false)
+    const [followButton, setFollowButton] = useState(false)
     const navigate = useNavigate()
+
+    const isFriend = user?  props.loggedUser.friends.includes(user._id) : false
+    const isFollowing = user?  props.loggedUser.following.includes(user._id) : false
+    const isRequesting = user?  props.loggedUser.friendRequests.includes(user._id) : false
+    const [amRequesting,setAmRequesting] =   useState(user? user.friendRequests.includes(props.loggedUser._id): false)
+
+    console.log(props.loggedUser, user);
+
     const getUser = async ()=>{
         try {
             const resp = await props.api.getUserByName(username)
@@ -46,7 +55,18 @@ export default function UserProfile(props){
                 <Button>
                     Follow
                 </Button>
-                <ProgressButton/>
+                <ProgressButton onClick={async ()=>{
+                        setFollowButton(true)
+                        try {
+                            const resp = await isFollowing?props.api.unfollowUser(user._id):props.api.followUser(user._id)
+                            getUser()
+                        }  
+                        catch (error) {
+                            console.log(error);
+                        }
+                        setFollowButton(false)
+                    }}
+                    loading={followButton} text={isFollowing?'Unfollow':'Follow'}/>
                 <Button onClick={()=>(setRecOpen(true))}>
                     Recommend
                 </Button>
