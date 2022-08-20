@@ -8,12 +8,15 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import FeedIcon from '@mui/icons-material/Feed';
 
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import AuthContext from "../../context/context";
 const minDrawerWidth = 240
 const drawerWidth = '20%'
 const maxwith = 300
 const navbarHeight = "9vh" // actually  +2 of navbar height
-export default function MenuDrawer(props){
 
+export default function MenuDrawer(props){
+    const {api} = useContext(AuthContext)
     return <Drawer variant="permanent" open={props.open} onClose={props.toggleDrawer} sx={{
         minWidth: minDrawerWidth,
         width:drawerWidth,
@@ -78,7 +81,7 @@ export default function MenuDrawer(props){
                 <ListItemText primary="Settings"/>
             </ListItemButton>
             <Divider/>
-            <ListItemButton onClick={props.logout}>
+            <ListItemButton onClick={api.logout}>
                 <ListItemIcon>
                     <LogoutIcon/>
                 </ListItemIcon>

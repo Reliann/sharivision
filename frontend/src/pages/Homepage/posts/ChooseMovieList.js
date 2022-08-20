@@ -1,11 +1,12 @@
 import Search from "@mui/icons-material/Search";
 import { Box, TextField, Typography, Button } from "@mui/material";
 import { useState } from "react";
-import SummerizedMoviesGrid from "../Movies/SummerizedMovieGris";
+import BasicMovieGrid from "./BasicMovieGrid";
 
 
 
-export default function RecommendMovie(props){
+
+export default function ChooseMovieList(props){
     const [search, setSearch] = useState('')
     
     const searchMovies = async (e)=>{
@@ -15,20 +16,20 @@ export default function RecommendMovie(props){
     return <Box sx={{padding:'2%',display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
         {/* searchbox for movies */}
         <Typography>
-                {`Reccomend movie to ${props.friend.username}`}
+                Choose Movie
         </Typography>
         <Box component='form' onSubmit={searchMovies} sx={{ display:'flex',alignItems:'center'}}>
             <TextField defaultValue={''} name='search' type='search'/>
             <Button type='submit' startIcon={<Search/>}>Search</Button>
         </Box>
-        <SummerizedMoviesGrid api={props.api} search = {search} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <BasicMovieGrid clb={props.clb} api={props.api} search = {search} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
         <Typography>
             Your Favorites
         </Typography>
-        <SummerizedMoviesGrid api={props.api} movies = {props.user.favorites} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <BasicMovieGrid clb={props.clb} api={props.api} movies = {props.user.favorites} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
         <Typography>
             Your Watched Movies
         </Typography>
-        <SummerizedMoviesGrid api={props.api} movies = {props.user.watchedList} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <BasicMovieGrid clb={props.clb} api={props.api} movies = {props.user.watchedList} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
     </Box>
 }

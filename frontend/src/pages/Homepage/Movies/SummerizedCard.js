@@ -4,7 +4,7 @@ import { Avatar, Box, IconButton, Paper, Tooltip, Typography } from "@mui/materi
 import { useState } from "react";
 
 export default function SummerizedCard (props){
-    const [isRec, setIsRec] = useState(props.friend?.recommended?.[props.data.id]?.includes(props.user._id))
+    const isRec = props.friend?.recommended?.[props.data.id]?.includes(props.user._id)
     
     return <Paper sx={{display:'flex', flexDirection:'row', marginY:'2%'}}>
         <Avatar variant="square" src={`${props.data.image?.medium||
@@ -16,9 +16,10 @@ export default function SummerizedCard (props){
         <Tooltip title={`${isRec?'Unrecommend':'Recommend'} ${props.data.name}`}>
             <IconButton onClick={async ()=>{
                 try {
-                    isRec ? await props.api.removeRecommenation(props.data.id, props.friend._id): await props.api.recommendMovie(props.data.id, props.friend._id)
+                    const resp =  isRec ? await props.api.removeRecommenation(props.data.id, props.friend._id):await props.api.recommendMovie(props.data.id, props.friend._id)
+                    props.updateFriend(resp.data.resource)
                     props.clb(`Movie ${isRec?'unrecommended':'recommended'}`)
-                    setIsRec(!isRec)
+                    
                 } catch (error) {
                     console.log(error);
                     props.clb('Oops')

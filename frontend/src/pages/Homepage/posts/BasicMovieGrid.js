@@ -1,13 +1,15 @@
-import { Dialog, Grid } from '@mui/material'
+import { Dialog, Grid, Paper } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {getMoviesPage, getMovieById, searchMovies} from '../../../AxiosHook/MoviesApi'
-import SummerizedCard from './SummerizedCard'
+import BasicMovieCard from './BasicMovieCard'
 
 
-export default function SummerizedMoviesGrid(props){
+
+
+export default function BasicMovieGrid(props){
     const [movies,setMovies] = useState([])
-    const [msg,setMsg] = useState('')
+
     const navigate= useNavigate()
     //console.log(movies);
     const getMovies = async ()=>{
@@ -46,11 +48,7 @@ export default function SummerizedMoviesGrid(props){
 
     return <Grid sx={{flexDirection:'column', width:'100%'}}>
         {
-            movies.map(movie=><SummerizedCard clb ={m=>setMsg(m)} key={movie.id} data={movie} api = {props.api} 
-                friend= {props.friend} user={props.user} updateFriend={props.updateFriend}/>)
+            movies.map(movie=><BasicMovieCard key={movie.id} data={movie}  clb={()=>props.clb(movie)}/>)
         }
-        <Dialog open={msg?true:false} onClose={()=>setMsg('')} sx={{zIndex:'1402'}}>
-            {msg}
-        </Dialog>
     </Grid>
 }

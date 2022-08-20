@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../context/context';
 
@@ -16,13 +16,16 @@ const baseConfig = {
     }}
 
 export default function useAxios(){
-    
-    const {setUser, setMsg, user, token} = useContext(AuthContext)
+    const [user,setUserRaw] = useState(JSON.parse(localStorage.getItem('user')) || {info:{},token:{}})
+    //const {setUser, setMsg, user, token} = useContext(AuthContext)
     console.log(user);
     const navigate = useNavigate()
     // those routes shouldn't use interceptors...
     const shariApi = axios.create(baseConfig);
-
+    const setUser = (newUSer)=>{
+        localStorage.setItem('user', JSON.stringify(newUSer))
+        setUserRaw(newUSer)
+    }
     // const setLocalStorage =()=>{
     //     localStorage.setItem('user', JSON.stringify({token:resp.data.token, info:resp.data.user}))
     // }
@@ -77,19 +80,19 @@ export default function useAxios(){
     // Add a request interceptor for shari
     shariApi.interceptors.request.use(function (config) {
         // Before request is sent, add auth header 
-        config.headers.Authorization = `JWT ${token}`
+        config.headers.Authorization = `JWT ${user.token}`
         return config;
     }, function (error){
         // probably network error
-        setMsg(error.messege)
+        console.log(error.messege)
         return Promise.reject(error);
     });
     // Add a response interceptor
     shariApi.interceptors.response.use(
         (res)=>{
-            if (res.data?.detail==="new info"){
+            if (res.data?.userinfo){
                 // if new info is recived update the user's info...
-                setUser({info:{...user,...res.data.info},token:token})
+                setUser({info:{...user,...res.data.userinfo},token:user.token})
             }
             return res
         },
@@ -117,44 +120,48 @@ export default function useAxios(){
     );
 
     return{
+        user: user.info,
         // only auth paths are special, they dont require auth..
-        login: login,
-        register: register,
-        logout:logout,
-        googleLogin:googleLogin,
-        // user route
-        getUserByName:(identifier)=>(shariApi.get(`users/${identifier}`)),
-        updateUser:(payload)=>(shariApi.put(`users/${user._id}`,payload)),
-        deleteUser:()=>(shariApi.delete(`users/${user._id}`)),
-        removeMovieRecommenation:(movieId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}`)),
-        //uploadSignature:()=>(shariApi.get(`users/${user._id}/avatar-upload-signature`)),
-        //uploadAvatar:(payload)=>(shariApi.patch(`users/${user._id}/avatar`,payload)),
-        // people 
-        sampleUsers:()=>(shariApi.get(`users/sample/${user._id}`)),
-        fullFriends:()=>shariApi.get(`users/fullFriends/${user._id}`),
-        fullFriendRequests:()=>shariApi.get(`users/fullFriendRequests/${user._id}`),
-        //lists
-        addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user._id}/watchlist/${movieId}`)),
-        removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user._id}/watchlist/${movieId}`)),
-        requestFriendship:(friendId)=>(shariApi.post(`users/${user._id}/friendrequest/${friendId}`)),
-        removeFriendshipRequest:(friendId)=>(shariApi.delete(`users/${user._id}/friendrequest/${friendId}`)),
-        removeFriend:(friendId)=>(shariApi.delete(`users/${user._id}/removefriend/${friendId}`)),
-        followUser:(friendId)=>(shariApi.post(`users/${user._id}/follow/${friendId}`)),
-        unfollowUser:(friendId)=>(shariApi.delete(`users/${user._id}/follow/${friendId}`)),
-        removeFollower:(friendId)=>(shariApi.delete(`users/${user._id}/removefollower/${friendId}`)),
-        recommendMovie:(movieId, friendId)=>(shariApi.post(`users/${user._id}/recommend/${movieId}/${friendId}`)),
-        removeRecommenation:(movieId, friendId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}/${friendId}`)),
-        addMovieTowatchedMovies:(movieId)=>(shariApi.post(`users/${user._id}/watched/${movieId}`)),
-        removeMovieFromWatchedMovies:(movieId)=>(shariApi.delete(`users/${user._id}/watched/${movieId}`)),
-        addMovieToFavorites:(movieId)=>(shariApi.post(`users/${user._id}/favorite/${movieId}`)),
-        removeMovieFromFavorites:(movieId)=>(shariApi.delete(`users/${user._id}/favorite/${movieId}`)),
-        // upload routes 
-        signUpload:(params)=>(shariApi.get(`users/${user._id}/avatar-upload-signature`,{params:params})),
-        uploadAvatar:(avatar_url)=>(shariApi.patch(`users/${user._id}/avatar`,{avatar_url:avatar_url})),
-        deleteAvatar:()=>(shariApi.delete(`users/${user._id}/avatar`)),
-        // posts route
-        // ....
-        // comments route
-        //....
+        routes:{
+            login: login,
+            register: register,
+            logout:logout,
+            googleLogin:googleLogin,
+            // user route
+            getUserByName:(identifier)=>(shariApi.get(`users/${identifier}`)),
+            updateUser:(payload)=>(shariApi.put(`users/${user._id}`,payload)),
+            deleteUser:()=>(shariApi.delete(`users/${user._id}`)),
+            removeMovieRecommenation:(movieId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}`)),
+            //uploadSignature:()=>(shariApi.get(`users/${user._id}/avatar-upload-signature`)),
+            //uploadAvatar:(payload)=>(shariApi.patch(`users/${user._id}/avatar`,payload)),
+            // people 
+            sampleUsers:()=>(shariApi.get(`users/sample/${user._id}`)),
+            fullFriends:()=>shariApi.get(`users/fullFriends/${user._id}`),
+            fullFriendRequests:()=>shariApi.get(`users/fullFriendRequests/${user._id}`),
+            //lists
+            addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user._id}/watchlist/${movieId}`)),
+            removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user._id}/watchlist/${movieId}`)),
+            requestFriendship:(friendId)=>(shariApi.post(`users/${user._id}/friendrequest/${friendId}`)),
+            removeFriendshipRequest:(friendId)=>(shariApi.delete(`users/${user._id}/friendrequest/${friendId}`)),
+            removeFriend:(friendId)=>(shariApi.delete(`users/${user._id}/removefriend/${friendId}`)),
+            followUser:(friendId)=>(shariApi.post(`users/${user._id}/follow/${friendId}`)),
+            unfollowUser:(friendId)=>(shariApi.delete(`users/${user._id}/follow/${friendId}`)),
+            removeFollower:(friendId)=>(shariApi.delete(`users/${user._id}/removefollower/${friendId}`)),
+            recommendMovie:(movieId, friendId)=>(shariApi.post(`users/${user._id}/recommend/${movieId}/${friendId}`)),
+            removeRecommenation:(movieId, friendId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}/${friendId}`)),
+            addMovieTowatchedMovies:(movieId)=>(shariApi.post(`users/${user._id}/watched/${movieId}`)),
+            removeMovieFromWatchedMovies:(movieId)=>(shariApi.delete(`users/${user._id}/watched/${movieId}`)),
+            addMovieToFavorites:(movieId)=>(shariApi.post(`users/${user._id}/favorite/${movieId}`)),
+            removeMovieFromFavorites:(movieId)=>(shariApi.delete(`users/${user._id}/favorite/${movieId}`)),
+            // upload routes 
+            signUpload:(params)=>(shariApi.get(`users/${user._id}/avatar-upload-signature`,{params:params})),
+            uploadAvatar:(avatar_url)=>(shariApi.patch(`users/${user._id}/avatar`,{avatar_url:avatar_url})),
+            deleteAvatar:()=>(shariApi.delete(`users/${user._id}/avatar`)),
+            // posts route
+            // ....
+            // comments route
+            //....
+        }
+        
     }
 }

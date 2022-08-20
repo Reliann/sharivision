@@ -1,8 +1,13 @@
-import { Box, Button, Dialog, IconButton, Paper, TextField, Typography } from "@mui/material"
-import { useState } from "react"
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Button, Collapse, Dialog, IconButton, Paper, TextField, Typography } from "@mui/material"
+import { useContext, useState } from "react"
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ChooseMovieList from "./ChooseMovieList";
+import AuthContext from "../../../context/context";
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import BasicMovieCard from "./BasicMovieCard";
 
 export default function WritePost(){
+    const {user} = useContext(AuthContext)
     const [values, setValues] = useState({
         spoiler:"",
         body:"",
@@ -10,7 +15,7 @@ export default function WritePost(){
         movie:"",
         movieSearch:"",
     })
-    const [movies, setMovies] = useState([])
+    const [openForm,setOpenForm] = useState(false)
     const [movieSearchDialog, setMovieSearchDialog] = useState(false)
     const handleInput = (prop)=>(e)=>{
         setValues({...values,[prop]:e.target.value})
@@ -18,28 +23,32 @@ export default function WritePost(){
     const submitForm = async(e)=>{
         e.preventDefault()
     }
-    const fetchMovies = async()=>{
-        setMovies([1,2,3])
-    }
+    
     const toggleMovieDialog = async()=>{
         setMovieSearchDialog(!movieSearchDialog)
     }
     
     return <Box>
-
-        <Paper component="form" onSubmit={submitForm} sx={{width:"fit-content", 
-            display:"flex", flexDirection:"column", padding:"2%"}}>
         <Typography variant="h5">
             Have something to say?
         </Typography>
+        <Button sx={{width:'100%'}} onClick={()=>setOpenForm(!openForm)}>
+            {openForm?<ExpandLessIcon/>:<ExpandMoreIcon/>}
+        </Button>
+        <Collapse in={openForm}>
+        <Paper component="form" onSubmit={submitForm} sx={{width:"100%", 
+            display:"flex", flexDirection:"column", padding:"2%"}}>
+        
             <TextField
                 margin="normal"
                 value={values.title}
                 onChange={handleInput('title')}
                 label="Post Title"
             />
-            <Button onClick={toggleMovieDialog}>
-                Choose Movie
+            
+            {values.movie&&<BasicMovieCard data={values.movie}/>}
+            <Button onClick={()=>{values.movie?setValues({...values,movie:''}):toggleMovieDialog()}}>
+                {values.movie?'Remove Movie':'Choose Movie'}
             </Button>
             <TextField
                 margin="normal"
@@ -54,18 +63,13 @@ export default function WritePost(){
                 Post
             </Button>
         </Paper>
+        </Collapse>
+        
         <Dialog open={movieSearchDialog} onClose={toggleMovieDialog}>
-            <Box sx={{padding:"10%"}} component="form" onSubmit={fetchMovies}>
-                <Typography variant="h4">
-                    Search movie
-                </Typography>
-                <TextField
-                    value={values.movieSearch}
-                    onChange={handleInput('movieSearch')}
-                    InputProps={{endAdornment:<IconButton type="submit" edge="end">
-                        <SearchIcon/>
-                    </IconButton>}}
-                />
+            <Box sx={{padding:"10%"}} >
+                <ChooseMovieList user={user} clb={(m)=>{
+                    setValues({...values,movie:m})
+                    toggleMovieDialog()}}/>
             </Box>
         </Dialog>
     </Box>

@@ -12,8 +12,6 @@ function getRandomInt(max) {
 
 export default function MoviesGrid(props){
     const [movies,setMovies] = useState([])
-    const [open, setOpen] = useState(false)
-    const [friendsDialog,setFriendsDialog] = useState(false)
     const [message, setMessage] = useState("")
     const navigate = useNavigate()
     const {user} = useContext(AuthContext)
@@ -78,69 +76,15 @@ export default function MoviesGrid(props){
         {
             
             movies.slice(0,20).map(movie=>{
-                const favorite = user.favorites.includes(movie.id.toString())
-                const watched = user.watchedList.includes(movie.id.toString())
-                const toWatch = user.watchList.includes(movie.id.toString())
                 return <Grid item key={movie.id} sx={{margin:'5px'}}>
-                    <MovieCard data={movie} favorite={favorite} watched={watched} toWatch={toWatch}
-                    clickOnFavorite={async ()=>{
-                        try{
-                            if (favorite){     // TODO: add are you sure pop up
-                                await props.api.removeMovieFromFavorites(movie.id)
-                                setMessage("Movie removed from favotites!")
-                            }else{
-                                await props.api.addMovieToFavorites(movie.id)
-                                setMessage("Movie added to favorites!")
-                            }
-                        }catch (error){
-                            setMessage("Ooops!")
-                        }
-                        // dialog will be openned either way...
-                        setOpen(true)
-                        
-                    }}
-                    clickOnWatched={
-                        async ()=>{
-                            try{
-                                if (watched){
-                                    await props.api.removeMovieFromWatchedMovies(movie.id)
-                                    setMessage("Movie removed from watched movies!")
-                                }else{
-                                    await props.api.addMovieTowatchedMovies(movie.id)
-                                    setMessage("movie added to watched movies and was removed from watch list!")
-                                }
-                            }catch(error){
-                                setMessage("Ooops!")
-                            }
-                            // dialog will be openned either way...
-                            setOpen(true)
-                        }
-                    }
-                    clickOnToWatch={
-                        async ()=>{
-                            try{
-                                if (toWatch){
-                                    await props.api.removeMovieToWatchList(movie.id)
-                                    setMessage("Movie removed from watch list!")
-                                }else{
-                                    await props.api.addMovieToWatchList(movie.id)
-                                    setMessage("movie added to watch list!")
-                                }
-                            }catch(error){
-                                setMessage("Ooops!")
-                            }
-                            // dialog will be openned either way...
-                            setOpen(true)
-                        }
-                    }
-                    />
+                    <MovieCard setMessage={(m)=>setMessage(m)} api={props.api} user={user} data={movie} />
                 </Grid>
                 })
         }
-        <Dialog open={open} onClose={()=>setOpen(false)}>
+        <Dialog open={message?true:false} onClose={()=>setMessage('')}>
             <DialogTitle>{message}</DialogTitle>
             <DialogActions>
-                <Button onClick={()=>setOpen(false)}>
+                <Button onClick={()=>setMessage('')}>
                         OK!
                 </Button>
             </DialogActions>

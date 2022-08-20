@@ -11,6 +11,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Avatar, Button } from '@mui/material';
 import {Link} from 'react-router-dom'
+import AuthContext from '../../context/context';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -54,10 +55,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const height = "7vh"
 
 export default function Navbar(props) {
-
+  const {api, user} = React.useContext(AuthContext)
   return (
     <React.Fragment>
-      <AppBar position="sticky" sx={{ position:"fixed",zIndex:1400}}>
+      <AppBar sx={{zIndex:1400}}>
         <Toolbar sx={{alignItems:"center",height:height}}>
           <IconButton
             size="large"
@@ -89,10 +90,10 @@ export default function Navbar(props) {
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{display:"flex" , alignItems:"center"}}>
             <Link to={`MyProfile`}>
-            <Avatar src={props.avatarSrc}/>
+            <Avatar src={user.avatar}/>
             </Link>
             <Button
-              onClick={props.logout} sx={{display:{xs:"none", sm:"flex"}, color:"white"}}
+              onClick={api.logout} sx={{display:{xs:"none", sm:"flex"}, color:"white"}}
               startIcon ={<LogoutIcon/>}>Logout
             </Button>
           </Box>

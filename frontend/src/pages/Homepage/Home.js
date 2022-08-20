@@ -6,23 +6,24 @@ import Navbar from "./Navbar";
 import E404 from "../Errors/404";
 import { useContext, useState } from "react";
 import MenuDrawer from "./MenuDrawer";
-import WritePost from "./writePost";
 import AuthContext from "../../context/context";
 import useAxios from '../../AxiosHook/useAxios'
 import MoviesBrowser from "./Movies/MovieBrowser";
 import MyProfile from "./Users/MyProfile";
 import WatchList from "./watchList";
 import PeopleBrowser from "./friends/PeopleBrowser";
+import Feed from "./posts/Feed";
+
 
 export default function Home(){
     const {user} = useContext(AuthContext)
     const [drawer, setDrawer] = useState(false)
     // same axios instance for everything... 
-    const api = useAxios()
+    // const api = useAxios()
     const toggleDrawer= ()=>{
         setDrawer(!drawer)
     }
-    console.log(Object.keys(user).length,1);
+    //console.log(Object.keys(user).length,1);
     if (Object.keys(user).length===0){
         return (
             <Box>
@@ -32,10 +33,14 @@ export default function Home(){
     }
     return (
         <Box sx={{ width:'100%' , display:'flex', justifyContent:'right'}} >
-            <Navbar toggleDrawer={toggleDrawer} logout={api.logout} userId={user?._id} avatarSrc={user?.avatar}/>
-            <MenuDrawer logout={api.logout} open = {drawer} toggleDrawer={toggleDrawer}/>
+            <Navbar toggleDrawer={toggleDrawer}/>
+            <MenuDrawer  open = {drawer} toggleDrawer={toggleDrawer}/>
             <Grid container sx={{marginTop:'12vh',width:{xs:"95%",sm:"75%"},alignItems:"center", justifyContent:"center", display:"inline-block"}}>
-                <Routes>
+                
+                
+                
+                {/* <Routes>
+                    <Route path='' element={<Feed user={user} api={api}/>}/>
                     <Route path='MyProfile' element={<MyProfile user={user} api={api}/>}/>
                     <Route path='users/:username' element={<UserProfile api = {api} loggedUser={user}/>}/>
                     <Route path='users/' element={<Users api = {api}/>}/>
@@ -43,7 +48,7 @@ export default function Home(){
                     <Route path='movies/*' element={<MoviesBrowser api = {api} user={user}/>}/>
                     <Route path='people/:list' element={<PeopleBrowser api = {api} user={user}/>}/>
                     <Route path='people/' element={<PeopleBrowser api = {api} user={user}/>}/>
-                </Routes>
+                </Routes> */}
             </Grid>
             
         </Box>

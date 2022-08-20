@@ -28,7 +28,7 @@ export default function UploadWidget(props){
       uploadPreset: "avatars",
       api_key:"589975187121882",
       //cropping:true,
-      public_id:`${user.info._id}`,
+      public_id:`${user._id}`,
       multiple:false,
       uploadSignature:generateSigneture
     },

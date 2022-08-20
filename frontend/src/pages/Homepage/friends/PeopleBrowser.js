@@ -24,7 +24,7 @@ export default function PeopleBrowser(props){
             else{
                 resp = await props.api.sampleUsers()
             }
-            setPeople(resp.data)
+            setPeople(resp.data.resource)
             setLoading(false)
         }catch(error){
             console.log(error);
@@ -34,9 +34,19 @@ export default function PeopleBrowser(props){
         getPeople()
     },[list])
 
-   
 
-console.log(people, people.length, 90);
+    const updatePeople = (newFriendInfo)=>{
+        ///console.log(newFriendInfo.recommended, people[0].recommended);
+        const newppl = people.map((p)=>{
+            if (p._id===newFriendInfo._id){
+                return newFriendInfo
+            }
+            return p
+        })
+        setPeople(newppl)
+        //console.log(newFriendInfo.recommended);
+    }
+//console.log(people, people.length, 90);
     if (people.length === 0 ){
         return <Box sx={{display:'flex', justifyContent:'center', alignItems:'center', height:'100%'}}>
             <Typography variant='h3' component='h2'>
@@ -54,18 +64,12 @@ console.log(people, people.length, 90);
         <Box sx={{display:'flex',flexDirection:"column", justifyContent:'center', alignItems:'center'}}>
             {/* render the people asked for... */}
             {people.map((person)=>(
-                <PersonCard key={person._id} info={person} api={props.api} user = {props.user} recommend={()=>setDialog(person)}/>
+                <PersonCard key={person._id} info={person} api={props.api} user = {props.user}  updateFriend={updatePeople} recommend={()=>setDialog(person)}/>
             ))}
         </Box>
         {/* dialog to reccomend a movie */}
-        <Dialog open={Object.keys(dialog).length !== 0 } onClose={()=>setDialog({})} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
-            <RecommendMovie api={props.api} user = {props.user} friend={dialog} updateFriend={
-                (rec,m)=>{
-                    let newppl = people
-                    newppl[dialog._id].recommended[m].push(rec)
-                    setPeople(newppl)
-                }
-            }/>
-        </Dialog>
+        {/* <Dialog open={Object.keys(dialog).length !== 0 } onClose={()=>setDialog({})} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
+            <RecommendMovie api={props.api} user = {props.user} friend={dialog} updateFriend={updatePeople}/>
+        </Dialog> */}
     </Box>
 }

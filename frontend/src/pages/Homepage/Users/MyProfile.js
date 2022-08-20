@@ -73,13 +73,7 @@ export default function MyProfile(props){
             <Typography component="h3" variant="h4">
                 your recommendations by friends:
             </Typography>
-            {/* <MoviesGrid api = {props.api} movies = {props.user.recommanded}/> */}
-            <Typography component="h3" variant="h4">
-                your friends:
-            </Typography>
-            <Button>
-                View friend requests
-            </Button>
+            <MoviesGrid api = {props.api} movies = {Object.keys(props.user.recommended)}/>
             <Typography component="h3" variant="h4">
                 your watched shows:
             </Typography>
