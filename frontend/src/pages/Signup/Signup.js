@@ -1,13 +1,15 @@
 import { Avatar, Box, Button, Checkbox, Divider, FormControlLabel, FormHelperText, IconButton, Link, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 
 import GoogleLoginButton from "../Login/GoogleLogin";
 import useAxios from "../../AxiosHook/useAxios";
+import AuthContext from "../../context/context";
 
 export default function Signup(){
+    const {register, login} = useContext(AuthContext)
     const [values, setValues] = useState({
         username:"",
         password:"",
@@ -16,7 +18,7 @@ export default function Signup(){
         remember:true,
         showPassword:false
     })
-    const {register, login} = useAxios()
+    
     const [message,setMessage] = useState({
         username:"",
         password:"",

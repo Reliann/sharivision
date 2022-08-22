@@ -7,7 +7,8 @@ const uploadControl = require('../controllers/uploadControl')
 
 /* general user routes*/
 // get user by username
-router.get('/:username', (req,res)=>{
+router.get('/username/:username', (req,res)=>{
+    
     return userControl.getUserbyName(req,res)
 })
 // get user by id

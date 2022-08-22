@@ -39,16 +39,17 @@ export default function Home(){
                 
                 
                 
-                {/* <Routes>
-                    <Route path='' element={<Feed user={user} api={api}/>}/>
-                    <Route path='MyProfile' element={<MyProfile user={user} api={api}/>}/>
-                    <Route path='users/:username' element={<UserProfile api = {api} loggedUser={user}/>}/>
-                    <Route path='users/' element={<Users api = {api}/>}/>
-                    <Route path='watchList' element={<WatchList api={api} user={user}/>}/>
-                    <Route path='movies/*' element={<MoviesBrowser api = {api} user={user}/>}/>
-                    <Route path='people/:list' element={<PeopleBrowser api = {api} user={user}/>}/>
-                    <Route path='people/' element={<PeopleBrowser api = {api} user={user}/>}/>
-                </Routes> */}
+                <Routes>
+                    <Route path='' element={<Feed />}/>
+                    <Route path='MyProfile' element={<MyProfile/>}/>
+                    <Route path='users/:username' element={<UserProfile />}/>
+                    <Route path='users/' element={<Users/>}/>
+                    <Route path='watchList' element={<WatchList />}/>
+                    <Route path='movies/*' element={<MoviesBrowser/>}/>
+                    <Route path='people/:list' element={<PeopleBrowser/>}/>
+                    <Route path='people/' element={<PeopleBrowser />}/> 
+                
+                </Routes>
             </Grid>
             
         </Box>

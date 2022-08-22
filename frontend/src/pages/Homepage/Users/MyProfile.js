@@ -1,9 +1,10 @@
 import { Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, Typography } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import UploadWidget from '../../../CloudinaryWidget/UploadWidget'
-import { useState } from "react";
+import { useContext, useState } from "react";
 import MoviesGrid from '../Movies/MoviesGrid'
 import DeleteIcon from '@mui/icons-material/Delete';
+import AuthContext from "../../../context/context";
 
 const overlayContainer={
     position: 'relative',
@@ -46,13 +47,13 @@ const overlayImg={
 
 export default function MyProfile(props){
     const [dialog,setDialog]= useState(false)
-
+    const {user, deleteAvatar}  = useContext(AuthContext)
 
     return(
         <Grid container sx={{flexDirection:'column'}}>
             <Grid container alignItems="center">
                 <Box sx={overlayContainer}>
-                    <Avatar alt={props.user.username} src={props.user.avatar} sx={overlayImg}>
+                    <Avatar alt={user.username} src={user.avatar} sx={overlayImg}>
                         
                     </Avatar>
                     <IconButton  sx={overlay} onClick={()=>(setDialog(true))}>
@@ -60,7 +61,7 @@ export default function MyProfile(props){
                     </IconButton>
                 </Box>
             <Typography component="h2" variant="h2">
-                {props.user.username}
+                {user.username}
             </Typography>
             </Grid>
             
@@ -68,16 +69,16 @@ export default function MyProfile(props){
                 your favorite movies:
             </Typography>
             
-            <MoviesGrid api = {props.api} movies = {props.user.favorites}/>
+            <MoviesGrid  movies = {user.favorites}/>
 
             <Typography component="h3" variant="h4">
                 your recommendations by friends:
             </Typography>
-            <MoviesGrid api = {props.api} movies = {Object.keys(props.user.recommended)}/>
+            <MoviesGrid movies = {Object.keys(user.recommended)}/>
             <Typography component="h3" variant="h4">
                 your watched shows:
             </Typography>
-            <MoviesGrid api = {props.api} movies = {props.user.watchedList}/>
+            <MoviesGrid  movies = {user.watchedList}/>
             <Dialog
                 open={dialog}
                 onClose={()=>(setDialog(false))}
@@ -89,12 +90,12 @@ export default function MyProfile(props){
                     
                 </DialogContent> */}
                 <DialogActions>
-                <UploadWidget id = {props.user._id} api={props.api} successCallBack={()=>{setDialog(false)}} failureCallBack={()=>{}}/>
-                    {props.user.avatar&&<Button sx={{color:"fireBrick"}}
+                <UploadWidget id = {user._id} successCallBack={()=>{setDialog(false)}} failureCallBack={()=>{}}/>
+                    {user.avatar&&<Button sx={{color:"fireBrick"}}
                         startIcon={<DeleteIcon/>}
                         onClick={async ()=>{
                             try{
-                                const resp = await props.api.deleteAvatar()
+                                const resp = await deleteAvatar()
                                 //succses dialog
                             }catch (error){
                                 //fail dialog

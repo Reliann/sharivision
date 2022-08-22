@@ -1,14 +1,16 @@
 import { Avatar, Box, Button, Checkbox, Divider, FormControlLabel, FormHelperText, IconButton, Link, TextField, Typography } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import GoogleLoginButton from "./GoogleLogin";
 import useAxios from "../../AxiosHook/useAxios";
+import AuthContext from "../../context/context";
 
 
 export default function Login(){
-    
+    const {login} = useContext(AuthContext)
+
     const [values, setValues] = useState({
         password:"",
         email:"",
@@ -20,8 +22,7 @@ export default function Login(){
         password:"",
         msg:""
     })
-    const {login} = useAxios()
-
+    
     const handleValueChange = (prop) => (event) => {
         setMessage({...message,[prop]:"", msg:""})
         setValues({ ...values, [prop]: event.target.value });

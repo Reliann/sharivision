@@ -6,8 +6,12 @@ const presentableUser = (user)=>{
     const {password, email,blockedUsers, ...doc} = user._doc || user
     return doc
 }
+const simpleUser = (user)=>{
+    return {_id:user._id, username:user.username, avatar:user.avatar}
+}
 const options = {new:true}
 // query for users by usernames
+
 
 // TODO: remove inclue() and quary for the user itself 
 // TODO: return info about changed user
@@ -465,4 +469,6 @@ module.exports = {
     removeFromWatchedMovies,
     getSampleUsers,
     getFullPeopleList,
+    presentableUser,
+    simpleUser
 }

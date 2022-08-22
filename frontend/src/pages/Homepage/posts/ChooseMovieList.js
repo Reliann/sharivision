@@ -22,14 +22,14 @@ export default function ChooseMovieList(props){
             <TextField defaultValue={''} name='search' type='search'/>
             <Button type='submit' startIcon={<Search/>}>Search</Button>
         </Box>
-        <BasicMovieGrid clb={props.clb} api={props.api} search = {search} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <BasicMovieGrid clb={props.clb}  search = {search} friend = {props.friend}  updateFriend = {props.updateFriend}/>
         <Typography>
             Your Favorites
         </Typography>
-        <BasicMovieGrid clb={props.clb} api={props.api} movies = {props.user.favorites} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <BasicMovieGrid clb={props.clb}  movies = {props.user.favorites} friend = {props.friend}  updateFriend = {props.updateFriend}/>
         <Typography>
             Your Watched Movies
         </Typography>
-        <BasicMovieGrid clb={props.clb} api={props.api} movies = {props.user.watchedList} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <BasicMovieGrid clb={props.clb}  movies = {props.user.watchedList} friend = {props.friend}  updateFriend = {props.updateFriend}/>
     </Box>
 }

@@ -77,7 +77,7 @@ export default function MoviesGrid(props){
             
             movies.slice(0,20).map(movie=>{
                 return <Grid item key={movie.id} sx={{margin:'5px'}}>
-                    <MovieCard setMessage={(m)=>setMessage(m)} api={props.api} user={user} data={movie} />
+                    <MovieCard setMessage={(m)=>setMessage(m)} data={movie} />
                 </Grid>
                 })
         }

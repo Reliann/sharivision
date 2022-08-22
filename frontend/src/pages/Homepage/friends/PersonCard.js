@@ -7,18 +7,21 @@ import RecommendIcon from '@mui/icons-material/Recommend';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import RecommendMovie from "./RecommendMovie";
+import AuthContext from "../../../context/context";
 
 export default function PersonCard (props){
     const [recDialog,setRecDialog] = useState(false)
     const [errDialog,setErrDialog] = useState('')
-    const isFriend = props.user.friends.includes(props.info._id)
-    const isFollowing = props.user.following.includes(props.info._id)
-    const isRequesting = props.user.friendRequests.includes(props.info._id)
-    //const [amRequesting,setAmRequesting] = useState(props.info.friendRequests.includes(props.user._id))
-    const amRequesting=props.user? props.info.friendRequests.includes(props.user._id): false
+    const {user,followUser, unfollowUser, getUserByName,
+        removeFriend, removeFriendshipRequest, requestFriendship} = useContext(AuthContext)
+    const isFriend = user.friends.includes(props.info._id)
+    const isFollowing = user.following.includes(props.info._id)
+    const isRequesting = user.friendRequests.includes(props.info._id)
+    //const [amRequesting,setAmRequesting] = useState(props.info.friendRequests.includes(user._id))
+    const amRequesting=user? props.info.friendRequests.includes(user._id): false
 
     return<Paper elevation={8} sx={{width:'70%',display:"flex", alignItems:"center", margin:"2%", padding:"2%"}}>
         <Tooltip title="View Profile">
@@ -42,7 +45,7 @@ export default function PersonCard (props){
         <Tooltip title={`${isFollowing?'Unfollow':'Follow'} ${props.info.username}`}>
             <IconButton onClick={async()=>{
                 try {
-                    const resp = isFollowing? await props.api.unfollowUser(props.info._id):await props.api.followUser(props.info._id)
+                    const resp = isFollowing? await unfollowUser(props.info._id):await followUser(props.info._id)
                     props.updateFriend(resp.data.resource)
                 } catch (error) {
                     console.log(error);
@@ -57,7 +60,7 @@ export default function PersonCard (props){
         {(!isFriend&&!isRequesting&&!amRequesting)&&<Tooltip title = 'Send friend request'>
             <IconButton onClick={async ()=>{
                 try {
-                    const resp = await props.api.requestFriendship(props.info._id)
+                    const resp = await requestFriendship(props.info._id)
                     props.updateFriend(resp.data.resource)
                 } catch (error) {
                     console.log(error);
@@ -72,7 +75,7 @@ export default function PersonCard (props){
         {(!isFriend&&amRequesting)&&<Tooltip title = 'Cancle friend request'>
             <IconButton onClick={async ()=>{
                 try {
-                    const resp = await props.api.removeFriendshipRequest(props.info._id)
+                    const resp = await removeFriendshipRequest(props.info._id)
                     props.updateFriend(resp.data.resource)
                 } catch (error) {
                     console.log(error);
@@ -88,7 +91,7 @@ export default function PersonCard (props){
             <IconButton onClick={async()=>{
                 
                 try {
-                    const resp = await props.api.removeFriend(props.info._id)
+                    const resp = await removeFriend(props.info._id)
                     props.updateFriend(resp.data.resource)
                 } catch (error) {
                     console.log(error);
@@ -102,7 +105,7 @@ export default function PersonCard (props){
         {(!isFriend&&isRequesting)&&<Tooltip title = 'Accept friend'>
             <IconButton onClick={async()=>{
                 try {
-                    const resp = await props.api.requestFriendship(props.info._id)
+                    const resp = await requestFriendship(props.info._id)
                     props.updateFriend(resp.data.resource)
                 } catch (error) {
                     console.log(error);
@@ -117,7 +120,7 @@ export default function PersonCard (props){
         {(!isFriend&&isRequesting)&&<Tooltip title = 'Decline friend request'>
             <IconButton onClick={async()=>{
                 try {
-                    const resp = await props.api.removeFriendshipRequest(props.info._id)
+                    const resp = await removeFriendshipRequest(props.info._id)
                     props.updateFriend(resp.data.resource)
                 } catch (error) {
                     console.log(error);
@@ -137,7 +140,7 @@ export default function PersonCard (props){
         
             
         <Dialog open={recDialog} onClose={()=>setRecDialog(false)} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
-            <RecommendMovie api={props.api} user = {props.user} friend={props.info} updateFriend={props.updateFriend}/>
+            <RecommendMovie user = {user} friend={props.info} updateFriend={props.updateFriend}/>
         </Dialog>
         <Dialog open={errDialog?true:false} onClose={()=>setErrDialog('')}>
             <Typography>

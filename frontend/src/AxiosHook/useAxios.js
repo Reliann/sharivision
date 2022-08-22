@@ -15,16 +15,19 @@ const baseConfig = {
         'responseType': "application/json",
     }}
 
-export default function useAxios(){
-    const [user,setUserRaw] = useState(JSON.parse(localStorage.getItem('user')) || {info:{},token:{}})
+export default function useAxios(props){
+    //const [user,setUserRaw] = useState(JSON.parse(localStorage.getItem('user')) || {info:{},token:{}})
     //const {setUser, setMsg, user, token} = useContext(AuthContext)
-    console.log(user);
+    const user = props.user
     const navigate = useNavigate()
-    // those routes shouldn't use interceptors...
+    console.log(user);
     const shariApi = axios.create(baseConfig);
-    const setUser = (newUSer)=>{
-        localStorage.setItem('user', JSON.stringify(newUSer))
-        setUserRaw(newUSer)
+    // those routes shouldn't use interceptors...
+    
+    
+    const setUser = (newUser)=>{
+        localStorage.setItem('user', JSON.stringify({...newUser}))
+        props.setUser({...newUser})
     }
     // const setLocalStorage =()=>{
     //     localStorage.setItem('user', JSON.stringify({token:resp.data.token, info:resp.data.user}))
@@ -70,7 +73,7 @@ export default function useAxios(){
         // {withCredentials: true, credentials: 'include'} for the lovely cookie 
         const resp = await axios.post('auth/refresh',{withCredentials: true, credentials: 'include'},baseConfig)
         if(resp.status===200){
-            setUser({info:{...user},token:resp.data.token})
+            setUser({info:{...user.info},token:resp.data.token})
         }else{
             // if tokens can't be refreshed, a login is required
             logout()
@@ -92,7 +95,7 @@ export default function useAxios(){
         (res)=>{
             if (res.data?.userinfo){
                 // if new info is recived update the user's info...
-                setUser({info:{...user,...res.data.userinfo},token:user.token})
+                setUser({info:{...user.info,...res.data.userinfo},token:user.token})
             }
             return res
         },
@@ -106,7 +109,12 @@ export default function useAxios(){
                 if (resp.status === 200){
                     let og_request = error.config
                     og_request.headers.Authorization = `JWT ${resp.data.token}` 
-                    return axios.request(og_request)
+                    const newRes = await axios.request(og_request)
+                    if (newRes.data?.userinfo){
+                        // if new info is recived update the user's info...
+                        setUser({info:{...user.info,...newRes.data.userinfo},token:user.token})
+                    }
+                    return newRes
                 }
             // }else if([404,400].includes(error?.status)){
             //     // I consider only 404 and 400 as form errors, 
@@ -128,39 +136,50 @@ export default function useAxios(){
             logout:logout,
             googleLogin:googleLogin,
             // user route
-            getUserByName:(identifier)=>(shariApi.get(`users/${identifier}`)),
-            updateUser:(payload)=>(shariApi.put(`users/${user._id}`,payload)),
-            deleteUser:()=>(shariApi.delete(`users/${user._id}`)),
-            removeMovieRecommenation:(movieId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}`)),
-            //uploadSignature:()=>(shariApi.get(`users/${user._id}/avatar-upload-signature`)),
-            //uploadAvatar:(payload)=>(shariApi.patch(`users/${user._id}/avatar`,payload)),
+            
+            getUserByName:(identifier)=>(shariApi.get(`users/username/${identifier}`)),
+            getUserById:(identifier)=>(shariApi.get(`users/${identifier}`)),
+
+            updateUser:(payload)=>(shariApi.put(`users/${user.info._id}`,payload)),
+            deleteUser:()=>(shariApi.delete(`users/${user.info._id}`)),
+            removeMovieRecommenation:(movieId)=>(shariApi.delete(`users/${user.info._id}/recommend/${movieId}`)),
+            //uploadSignature:()=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`)),
+            //uploadAvatar:(payload)=>(shariApi.patch(`users/${user.info._id}/avatar`,payload)),
             // people 
-            sampleUsers:()=>(shariApi.get(`users/sample/${user._id}`)),
-            fullFriends:()=>shariApi.get(`users/fullFriends/${user._id}`),
-            fullFriendRequests:()=>shariApi.get(`users/fullFriendRequests/${user._id}`),
+            sampleUsers:()=>(shariApi.get(`users/sample/${user.info._id}`)),
+            fullFriends:()=>shariApi.get(`users/fullFriends/${user.info._id}`),
+            fullFriendRequests:()=>shariApi.get(`users/fullFriendRequests/${user.info._id}`),
             //lists
-            addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user._id}/watchlist/${movieId}`)),
-            removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user._id}/watchlist/${movieId}`)),
-            requestFriendship:(friendId)=>(shariApi.post(`users/${user._id}/friendrequest/${friendId}`)),
-            removeFriendshipRequest:(friendId)=>(shariApi.delete(`users/${user._id}/friendrequest/${friendId}`)),
-            removeFriend:(friendId)=>(shariApi.delete(`users/${user._id}/removefriend/${friendId}`)),
-            followUser:(friendId)=>(shariApi.post(`users/${user._id}/follow/${friendId}`)),
-            unfollowUser:(friendId)=>(shariApi.delete(`users/${user._id}/follow/${friendId}`)),
-            removeFollower:(friendId)=>(shariApi.delete(`users/${user._id}/removefollower/${friendId}`)),
-            recommendMovie:(movieId, friendId)=>(shariApi.post(`users/${user._id}/recommend/${movieId}/${friendId}`)),
-            removeRecommenation:(movieId, friendId)=>(shariApi.delete(`users/${user._id}/recommend/${movieId}/${friendId}`)),
-            addMovieTowatchedMovies:(movieId)=>(shariApi.post(`users/${user._id}/watched/${movieId}`)),
-            removeMovieFromWatchedMovies:(movieId)=>(shariApi.delete(`users/${user._id}/watched/${movieId}`)),
-            addMovieToFavorites:(movieId)=>(shariApi.post(`users/${user._id}/favorite/${movieId}`)),
-            removeMovieFromFavorites:(movieId)=>(shariApi.delete(`users/${user._id}/favorite/${movieId}`)),
+            addMovieToWatchList:(movieId)=>(shariApi.post(`users/${user.info._id}/watchlist/${movieId}`)),
+            removeMovieToWatchList:(movieId)=>(shariApi.delete(`users/${user.info._id}/watchlist/${movieId}`)),
+            requestFriendship:(friendId)=>(shariApi.post(`users/${user.info._id}/friendrequest/${friendId}`)),
+            removeFriendshipRequest:(friendId)=>(shariApi.delete(`users/${user.info._id}/friendrequest/${friendId}`)),
+            removeFriend:(friendId)=>(shariApi.delete(`users/${user.info._id}/removefriend/${friendId}`)),
+            followUser:(friendId)=>(shariApi.post(`users/${user.info._id}/follow/${friendId}`)),
+            unfollowUser:(friendId)=>(shariApi.delete(`users/${user.info._id}/follow/${friendId}`)),
+            removeFollower:(friendId)=>(shariApi.delete(`users/${user.info._id}/removefollower/${friendId}`)),
+            recommendMovie:(movieId, friendId)=>(shariApi.post(`users/${user.info._id}/recommend/${movieId}/${friendId}`)),
+            removeRecommenation:(movieId, friendId)=>(shariApi.delete(`users/${user.info._id}/recommend/${movieId}/${friendId}`)),
+            addMovieTowatchedMovies:(movieId)=>(shariApi.post(`users/${user.info._id}/watched/${movieId}`)),
+            removeMovieFromWatchedMovies:(movieId)=>(shariApi.delete(`users/${user.info._id}/watched/${movieId}`)),
+            addMovieToFavorites:(movieId)=>(shariApi.post(`users/${user.info._id}/favorite/${movieId}`)),
+            removeMovieFromFavorites:(movieId)=>(shariApi.delete(`users/${user.info._id}/favorite/${movieId}`)),
             // upload routes 
-            signUpload:(params)=>(shariApi.get(`users/${user._id}/avatar-upload-signature`,{params:params})),
-            uploadAvatar:(avatar_url)=>(shariApi.patch(`users/${user._id}/avatar`,{avatar_url:avatar_url})),
-            deleteAvatar:()=>(shariApi.delete(`users/${user._id}/avatar`)),
+            signUpload:(params)=>(shariApi.get(`users/${user.info._id}/avatar-upload-signature`,{params:params})),
+            uploadAvatar:(avatar_url)=>(shariApi.patch(`users/${user.info._id}/avatar`,{avatar_url:avatar_url})),
+            deleteAvatar:()=>(shariApi.delete(`users/${user.info._id}/avatar`)),
             // posts route
             // ....
+            addPost:(post)=>(shariApi.post('posts',post)),
+            getReleventPosts:()=>(shariApi.get('posts/relevent')),
+            getPostsByUser:(id)=>(shariApi.get(`posts/user/${id}`)),
+            likePost:(postId)=>(shariApi.post(`posts/${postId}/like`)),
+            unlikePost:(postId)=>(shariApi.delete(`posts/${postId}/like`)),
             // comments route
             //....
+            getCommentsByPost:(postId)=>(shariApi.get(`comments/${postId}`)),
+            addComment:(comment)=>(shariApi.post(`comments`,comment)),
+            getCommentsByComment:(comment)=>(shariApi.get(`comment/${comment}`))
         }
         
     }

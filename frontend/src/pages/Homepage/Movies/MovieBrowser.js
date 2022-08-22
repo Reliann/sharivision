@@ -30,12 +30,12 @@ export default function MoviesBrowser(props){
             <AutorenewIcon/>
         </IconButton>
         </Box>
-        <MoviesGrid api={props.api} search={search} refresh={refresh}/>
+        <MoviesGrid search={search} refresh={refresh}/>
     </Grid>
     return <Box>
         <Routes>
             <Route path='/' element={searchBoxGrid}/> 
-            <Route path='/:id' element={<MoviePage api={props.api} user={props.user} />}/> {/* includes full movie data, has own state */}
+            <Route path='/:id' element={<MoviePage/>}/> {/* includes full movie data, has own state */}
         </Routes>
     </Box>
 }

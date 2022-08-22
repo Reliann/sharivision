@@ -8,11 +8,14 @@ const {validId, validUserId, validAuthorId} = require('../middleware/validateIds
 // req.query.color1 === 'red'  // true
 // req.query.color2 === 'blue' // true
 
-router.get('/',(req,res)=>{
-
+router.get('/:id',validId,(req,res)=>{
+    if (permissions.isAuthenticated(req)){
+        return commentControl.getCommentsByPost(req,res)
+    }else{
+        return res.status(401).json("only authenticated users can view a comment")
+    }
 })
-router.post('/:id',validId,validAuthorId,(req,res)=>{
-    // cheak if the author is really the author
+router.post('',validAuthorId,(req,res)=>{
     if (permissions.isAuthenticated(req)){
         return commentControl.addComment(req,res)
     }else{

@@ -2,13 +2,14 @@ import {GoogleLogin} from 'react-google-login'
 import GoogleIcon from '@mui/icons-material/Google';
 import { Button, Checkbox, Dialog, FormControlLabel, FormHelperText, TextField, Typography } from '@mui/material';
 import useAxios from '../../AxiosHook/useAxios';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box } from '@mui/system';
+import AuthContext from '../../context/context';
 
 // google button component that will log/ register user accourdingly
 
-export default function GoogleLoginButton(props){
-    const {googleLogin} = useAxios()
+export default function GoogleLoginButton(){
+    const {googleLogin} = useContext(AuthContext)
     const [token,setToken] = useState(null)
     const [values,setValues] = useState({
         username:"",

@@ -46,8 +46,8 @@ export default function SummerizedMoviesGrid(props){
 
     return <Grid sx={{flexDirection:'column', width:'100%'}}>
         {
-            movies.map(movie=><SummerizedCard clb ={m=>setMsg(m)} key={movie.id} data={movie} api = {props.api} 
-                friend= {props.friend} user={props.user} updateFriend={props.updateFriend}/>)
+            movies.map(movie=><SummerizedCard clb ={m=>setMsg(m)} key={movie.id} data={movie}  
+                friend= {props.friend} updateFriend={props.updateFriend}/>)
         }
         <Dialog open={msg?true:false} onClose={()=>setMsg('')} sx={{zIndex:'1402'}}>
             {msg}

@@ -1,4 +1,4 @@
-import { Box, Button, Collapse, Dialog, IconButton, Paper, TextField, Typography } from "@mui/material"
+import { Box, Button, Collapse, Dialog, IconButton, Paper, Switch, TextField, Typography } from "@mui/material"
 import { useContext, useState } from "react"
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChooseMovieList from "./ChooseMovieList";
@@ -6,22 +6,35 @@ import AuthContext from "../../../context/context";
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import BasicMovieCard from "./BasicMovieCard";
 
-export default function WritePost(){
-    const {user} = useContext(AuthContext)
+export default function WritePost(props){
+    const {user,addPost} = useContext(AuthContext)
     const [values, setValues] = useState({
-        spoiler:"",
+        spoiler:false,
         body:"",
         title:"",
         movie:"",
-        movieSearch:"",
     })
     const [openForm,setOpenForm] = useState(false)
+    const [msg,setMsg] = useState('')
     const [movieSearchDialog, setMovieSearchDialog] = useState(false)
     const handleInput = (prop)=>(e)=>{
-        setValues({...values,[prop]:e.target.value})
+        if (prop =='spoiler'){
+            setValues({...values,[prop]:e.target.checked})
+        }else{
+            setValues({...values,[prop]:e.target.value})
+        }
+        
     }
     const submitForm = async(e)=>{
         e.preventDefault()
+        try {
+            const resp = await addPost({...values, movie:values.movie.id})
+            props.pushPost(resp.data.resource)
+            setMsg('Sucsees!')
+        } catch (error) {
+            console.log(error);
+            setMsg('Something went wrong!')
+        }
     }
     
     const toggleMovieDialog = async()=>{
@@ -58,7 +71,10 @@ export default function WritePost(){
                 multiline
                 rows={4}
             />
-
+            <Typography>
+                Contains Spoiler?
+            </Typography>
+            <Switch onChange={handleInput('spoiler')}/>
             <Button type="submit" color="primary" variant="contained">
                 Post
             </Button>
@@ -71,6 +87,11 @@ export default function WritePost(){
                     setValues({...values,movie:m})
                     toggleMovieDialog()}}/>
             </Box>
+        </Dialog>
+        <Dialog open={msg?true:false} onClose={()=>setMsg(false)}>
+            <Typography>
+                {msg}
+            </Typography>
         </Dialog>
     </Box>
 }

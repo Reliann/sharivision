@@ -5,10 +5,10 @@ import AuthContext from '../context/context';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 
 export default function UploadWidget(props){
-  const {user} = useContext(AuthContext)
+  const {user, signUpload, uploadAvatar} = useContext(AuthContext)
   const generateSigneture= async (callback, params_to_sign)=>{
     try{
-      const res = await props.api.signUpload(params_to_sign)
+      const res = await signUpload(params_to_sign)
       if (res.status ==="200"){
         console.log(res);
         callback(res.data.signature)
@@ -35,7 +35,7 @@ export default function UploadWidget(props){
     async (error, result) => {
       if (!error && result && result.event === "success") {
         console.log("Updating url in database...", result.info.secure_url);
-        const resp = await props.api.uploadAvatar(result.info.secure_url)
+        const resp = await uploadAvatar(result.info.secure_url)
         if (resp.status == 200){
           console.log("avatar updated!")
           props.successCallBack()

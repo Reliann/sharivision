@@ -1,13 +1,14 @@
 import Search from "@mui/icons-material/Search";
 import { Box, TextField, Typography, Button } from "@mui/material";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import AuthContext from "../../../context/context";
 import SummerizedMoviesGrid from "../Movies/SummerizedMovieGris";
 
 
 
 export default function RecommendMovie(props){
     const [search, setSearch] = useState('')
-    
+    const {user}  = useContext(AuthContext)
     const searchMovies = async (e)=>{
         e.preventDefault()
         setSearch(e.target.elements.search.value)
@@ -21,14 +22,14 @@ export default function RecommendMovie(props){
             <TextField defaultValue={''} name='search' type='search'/>
             <Button type='submit' startIcon={<Search/>}>Search</Button>
         </Box>
-        <SummerizedMoviesGrid api={props.api} search = {search} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <SummerizedMoviesGrid  search = {search} friend = {props.friend} updateFriend = {props.updateFriend}/>
         <Typography>
             Your Favorites
         </Typography>
-        <SummerizedMoviesGrid api={props.api} movies = {props.user.favorites} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <SummerizedMoviesGrid  movies = {user.favorites} friend = {props.friend} updateFriend = {props.updateFriend}/>
         <Typography>
             Your Watched Movies
         </Typography>
-        <SummerizedMoviesGrid api={props.api} movies = {props.user.watchedList} friend = {props.friend} user={props.user} updateFriend = {props.updateFriend}/>
+        <SummerizedMoviesGrid  movies = {user.watchedList} friend = {props.friend}  updateFriend = {props.updateFriend}/>
     </Box>
 }

@@ -55,7 +55,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const height = "7vh"
 
 export default function Navbar(props) {
-  const {api, user} = React.useContext(AuthContext)
+  const {logout, user} = React.useContext(AuthContext)
   return (
     <React.Fragment>
       <AppBar sx={{zIndex:1400}}>
@@ -93,7 +93,7 @@ export default function Navbar(props) {
             <Avatar src={user.avatar}/>
             </Link>
             <Button
-              onClick={api.logout} sx={{display:{xs:"none", sm:"flex"}, color:"white"}}
+              onClick={logout} sx={{display:{xs:"none", sm:"flex"}, color:"white"}}
               startIcon ={<LogoutIcon/>}>Logout
             </Button>
           </Box>

@@ -1,19 +1,24 @@
 import { Avatar, Box, Button, Dialog, Divider, Grid, Tab, Tabs, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 import RecommendMovie from "../friends/RecommendMovie";
 import ProgressButton from '../../utils/ProgressButton'
 import TabPanel from "../../utils/TabPanel";
 import MoviesGrid from "../Movies/MoviesGrid";
+import AuthContext from "../../../context/context";
+import PostGrid from '../../Homepage/posts/PostGrid'
 
-
-export default function UserProfile(props){
+export default function UserProfile(){
+    const {user, followUser, unfollowUser, getUserByName,
+        removeFriend, removeFriendshipRequest, requestFriendship,
+        getPostsByUser,} = useContext(AuthContext)
     const {username} = useParams()
     const navigate = useNavigate()
-    username === props.loggedUser.username && navigate('../../MyProfile')
+    const [posts,setPosts] = useState([])
+    username === user.username && navigate('../../MyProfile')
 
-    const [user,setUser] = useState()
+    const [viewUser,setViewUser] = useState()
     const [recOpen,setRecOpen] = useState(false)
     const [followButton, setFollowButton] = useState(false)
     const [friendButton, setFriendButton] = useState(false)
@@ -30,27 +35,41 @@ export default function UserProfile(props){
       }
     const getUser = async ()=>{
         try {
-            const resp = await props.api.getUserByName(username)
-            setUser(resp.data.resource)
+            const resp = await getUserByName(username)
+            setViewUser(resp.data.resource)
         } catch (error) {
             navigate('../../404')
         }
+        
     }
+    const getPosts = async()=>{
+        if (!viewUser) return
 
+        try {
+            const resp = await getPostsByUser(viewUser._id)
+            setPosts(resp.data.resource)
+        } catch (error) {
+            console.log(error);
+        }
+    }
     useEffect (()=>{
         getUser()
     },[])
-
-    if (!user){
+    useEffect (()=>{
+        getPosts()
+    },[viewUser])
+    
+    
+    if (!viewUser){
         return <Typography>
             Loading...
         </Typography>
     }
 
-    const isFriend = user?  props.loggedUser.friends.includes(user._id) : false
-    const isFollowing = user?  props.loggedUser.following.includes(user._id) : false
-    const isRequesting = user?  props.loggedUser.friendRequests.includes(user._id) : false
-    const amRequesting =user? user.friendRequests.includes(props.loggedUser._id): false
+    const isFriend = user?  user.friends.includes(viewUser._id) : false
+    const isFollowing = user?  user.following.includes(viewUser._id) : false
+    const isRequesting = user?  user.friendRequests.includes(viewUser._id) : false
+    const amRequesting =user? viewUser.friendRequests.includes(user._id): false
     
 
 
@@ -60,16 +79,16 @@ export default function UserProfile(props){
                 <Typography>
                     User {username}
                 </Typography>
-                    <Avatar src={user.avatar}/>
+                    <Avatar src={viewUser.avatar}/>
                 <Typography>
-                    {`followers: ${user.followers.length} following: ${user.following.length} friends: ${user.friends.length}`}
+                    {`followers: ${viewUser.followers.length} following: ${viewUser.following.length} friends: ${viewUser.friends.length}`}
                 </Typography>
                 <Box sx={{display:'flex', flexDirection:'row'}}>
                     <ProgressButton onClick={async ()=>{
                                 setFriendButton(true)
                                 try {
-                                    const resp = await isFriend?props.api.removeFriend(user._id):amRequesting?props.api.removeFriendshipRequest(user._id):props.api.requestFriendship(user._id)
-                                    setUser(resp.data.resource)
+                                    const resp =  isFriend?await removeFriend(viewUser._id):await amRequesting?await removeFriendshipRequest(viewUser._id):await requestFriendship(viewUser._id)
+                                    setViewUser(resp.data.resource)
                                 }  
                                 catch (error) {
                                     console.log(error);
@@ -81,9 +100,9 @@ export default function UserProfile(props){
                     <ProgressButton onClick={async ()=>{
                             setFollowButton(true)
                             try {
-                                const resp = isFollowing? await  props.api.unfollowUser(user._id): await props.api.followUser(user._id)
+                                const resp = isFollowing? await  unfollowUser(viewUser._id): await followUser(viewUser._id)
                                 console.log(resp);
-                                setUser(resp.data.resource)
+                                setViewUser(resp.data.resource)
                             }  
                             catch (error) {
                                 console.log(error);
@@ -99,28 +118,28 @@ export default function UserProfile(props){
             
             {/* show user's recent posts and comments */}
             <Dialog open={recOpen} onClose={()=>{setRecOpen(false)}} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
-                <RecommendMovie api={props.api} user = {props.loggedUser} friend={user} updateFriend={
+                <RecommendMovie friend={user} updateFriend={
                     (newResource)=>{
-                        setUser({...newResource})
+                        setViewUser({...newResource})
                     }
                 }/>
             </Dialog>
             <Divider sx={{marginY:'2%'}}/>
 
             <Tabs value={value} onChange={handleTabChange} aria-label="basic tabs example">
-                <Tab label="Posts" {...a11yProps(0)} />
+                <Tab label="Posts" {...a11yProps(0)} onClick={getPosts}/>
                 <Tab label="Comments" {...a11yProps(1)} />
                 <Tab label="Favorites" {...a11yProps(2)} />
             </Tabs>
             
             <TabPanel value={value} index={0}>
-            Item One
+                <PostGrid posts={posts} />
             </TabPanel>
             <TabPanel value={value} index={1}>
             Item Two
             </TabPanel>
             <TabPanel value={value} index={2}>
-            <MoviesGrid api={props.api} movies={user.favorites}/>
+                <MoviesGrid movies={viewUser.favorites}/>
             </TabPanel>
         </Box>
     )

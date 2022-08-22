@@ -16,7 +16,7 @@ const maxwith = 300
 const navbarHeight = "9vh" // actually  +2 of navbar height
 
 export default function MenuDrawer(props){
-    const {api} = useContext(AuthContext)
+    const {logout} = useContext(AuthContext)
     return <Drawer variant="permanent" open={props.open} onClose={props.toggleDrawer} sx={{
         minWidth: minDrawerWidth,
         width:drawerWidth,
@@ -81,7 +81,7 @@ export default function MenuDrawer(props){
                 <ListItemText primary="Settings"/>
             </ListItemButton>
             <Divider/>
-            <ListItemButton onClick={api.logout}>
+            <ListItemButton onClick={logout}>
                 <ListItemIcon>
                     <LogoutIcon/>
                 </ListItemIcon>

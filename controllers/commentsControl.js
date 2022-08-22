@@ -2,23 +2,43 @@ const Comment = require('../models/Comment')
 const permissions = require('./permissions/permissions')
 const Post = require('../models/Post')
 const User = require('../models/User')
+const { simpleUser } = require('./usersControl')
 
 const options = {new:true}
 // can only get comments by post id or author or liker or postOwner (it needs to come with some context..)
-const getCommentByParams= async (req, res)=>{
 
+const getFullComment= async (comment)=>{
+    try {
+        comment = comment.toObject()
+        const author = await User.findById(comment.author,)
+        if (author){
+            comment.author = simpleUser(author)
+        }
+        return comment
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const getCommentsByPost= async (req, res)=>{
+    try {
+        const comments = await Comment.find({post:req.params.id})
+        res.status(200).json({detail:'ok', resource: await Promise.all(comments.map(comment=>(getFullComment(comment))))})
+    } catch (error) {
+        console.log(error);
+    }
 }
 const addComment= async (req, res)=>{
     // needs to make sure both the user and the post exists before posting comments..
-    const {author, body, post, tag, reply, spoiler} = req.params.body
+    
+    const {author, body, post, tag, reply, spoiler} = req.body
     try {
         const user = await User.findById(author)
         if (user){
-            if (user._id.toString() === req.userId){
-                const postCheck = await Post.findById(post)
+                const postCheck = await Post.findByIdAndUpdate(post, {$inc:{commentsCount:1}})
                 if (postCheck){
                     if (reply){
-                        const replyCheck = await Comment.findById(reply)
+                        const replyCheck = await Comment.findByIdAndUpdate(reply,{$inc:{commentsCount:1}})
                         if (replyCheck){
                             const newComment = await Comment.create({
                                 author:author,
@@ -28,7 +48,7 @@ const addComment= async (req, res)=>{
                                 reply:replyCheck._id,
                                 postAuthor:postCheck.author
                             })
-                            return res.status(201).json(newComment)
+                            return res.status(201).json({detail:'ok', resource:await getFullComment(newComment)})
                         }else{
                             return res.status(404).json("comment dosn't exit")
                         }
@@ -40,16 +60,14 @@ const addComment= async (req, res)=>{
                             spoiler:spoiler,
                             postAuthor:postCheck.author
                         })
-                        return res.status(201).json(newComment)
+                        
+                        return res.status(201).json({detail:'ok', resource:await getFullComment(newComment)})
                     }
                     
                 }else{
                     return res.status(404).json("post dosn't exit")
                 }
-                
-            }else{
-                return res.status(403).json("you can't comment for someone else.")
-            }
+           
         }else{
             return res.status(404).json("author not found")
         }
@@ -88,7 +106,7 @@ const updateComment = async (req,res)=>{
                 body:body,
                 spoiler:spoiler,
             },options)
-            return res.status(201).json(comment)
+            return res.status(201).json({detail:'ok', resource:await getFullComment(comment)})
         }else{
             return res.status(403).json("you can't update someone else's comment.")
         }
@@ -100,8 +118,8 @@ const updateComment = async (req,res)=>{
 const likeComment = async (req,res)=>{
     try {
         // any logged user can like
-        await Comment.findByIdAndUpdate(req.params.id,{$addToSet:{likes:req.params.userId}})
-        return res.status(200).json("post liked")
+        const comment= await Comment.findByIdAndUpdate(req.params.id,{$addToSet:{likes:req.params.userId}},options)
+        return res.status(200).json({detail:'ok',resource:await getFullComment(comment)})
 
     } catch (error) {
         console.log(error);
@@ -111,8 +129,8 @@ const likeComment = async (req,res)=>{
 const unlikeComment = async (req,res)=>{
     try {
         // any logged user can like
-        await Comment.findByIdAndUpdate(req.params.id,{$pull:{likes:req.params.userId}})
-        return res.status(200).json("post liked")
+        const comment= await Comment.findByIdAndUpdate(req.params.id,{$pull:{likes:req.params.userId}},options)
+        return res.status(200).json({detail:'ok',resource:await getFullComment(comment)})
 
     } catch (error) {
         console.log(error);
@@ -121,7 +139,7 @@ const unlikeComment = async (req,res)=>{
 }
 
 module.exports = {
-    getCommentByParams,
+    getCommentsByPost,
     addComment,
     removeComment,
     updateComment,

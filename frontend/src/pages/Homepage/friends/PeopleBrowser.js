@@ -1,28 +1,28 @@
 import { Button, Dialog, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Search from "@mui/icons-material/Search";
 import PersonCard from "./PersonCard";
 import { useParams } from "react-router-dom";
 import RecommendMovie from "./RecommendMovie";
+import AuthContext from "../../../context/context";
 
 
-export default function PeopleBrowser(props){
+export default function PeopleBrowser(){
     const [people,setPeople] = useState([])
     const [loading,setLoading]  = useState(true)
-    const [dialog, setDialog] = useState({})
     const {list} = useParams()
-
+    const {sampleUsers, fullFriends, fullFriendRequests} = useContext(AuthContext)
     const getPeople = async ()=>{
         let resp
         try{
             if (list === 'friends'){
-                resp = await props.api.fullFriends()
+                resp = await fullFriends()
             }else if(list ==='friendRequests'){
-                resp = await props.api.fullFriendRequests()
+                resp = await fullFriendRequests()
             }
             else{
-                resp = await props.api.sampleUsers()
+                resp = await sampleUsers()
             }
             setPeople(resp.data.resource)
             setLoading(false)
@@ -64,7 +64,7 @@ export default function PeopleBrowser(props){
         <Box sx={{display:'flex',flexDirection:"column", justifyContent:'center', alignItems:'center'}}>
             {/* render the people asked for... */}
             {people.map((person)=>(
-                <PersonCard key={person._id} info={person} api={props.api} user = {props.user}  updateFriend={updatePeople} recommend={()=>setDialog(person)}/>
+                <PersonCard key={person._id} info={person}  updateFriend={updatePeople} />
             ))}
         </Box>
         {/* dialog to reccomend a movie */}
