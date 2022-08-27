@@ -177,9 +177,12 @@ export default function useAxios(props){
             unlikePost:(postId)=>(shariApi.delete(`posts/${postId}/like`)),
             // comments route
             //....
-            getCommentsByPost:(postId)=>(shariApi.get(`comments/${postId}`)),
+            getCommentsByPost:(postId)=>(shariApi.get(`comments/post/${postId}`)),
+            getCommentsByUser:(userId)=>(shariApi.get(`comments/user/${userId}`)),
             addComment:(comment)=>(shariApi.post(`comments`,comment)),
-            getCommentsByComment:(comment)=>(shariApi.get(`comment/${comment}`))
+            getCommentsByComment:(comment)=>(shariApi.get(`comments/comment/${comment}`)),
+            likeComment:(comment)=>(shariApi.post(`comments/${comment}/like`)),
+            unlikeComment:(comment)=>(shariApi.delete(`comments/${comment}/like`)),
         }
         
     }

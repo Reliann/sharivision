@@ -5,7 +5,6 @@ const User = require('../../models/User')
 
 // object level
 const areFriends = (user1, user2)=>{
-
     if (user2.friends.includes(user1._id))
         return true
     else 

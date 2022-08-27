@@ -8,10 +8,12 @@ import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import CommentsGrid from "./Comments/CommentsGrid";
 import WriteComment from "./Comments/WriteComment";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import ExpandLess from "@mui/icons-material/ExpandLess";
 
-export default function (props){
+export default function Post (props){
   const [allowSpoiler,setAllowSpoiler] = useState(!props.post.spoiler)
   const [comments,setComments] = useState([])
+  const [showComments, setShowComments] = useState(false)
   const {user, likePost, unlikePost, getCommentsByPost} = useContext(AuthContext)
   const [movie,setMovie] = useState({})
   const isLiked = props.post.likes.includes(user._id)
@@ -65,28 +67,26 @@ export default function (props){
           >
           {(isLiked?'UNLIKE':'LIKE') + ` (${props.post.likes.length})`}
         </Button>
-        <Button startIcon={<ExpandMore/>} onClick={getComments}>
+        <Button startIcon={showComments?<ExpandLess/>:<ExpandMore/>} onClick={()=>{getComments();setShowComments(!showComments)}}>
           View Comments ({props.post.commentsCount})
         </Button>
         
       </Box>
-      <CommentsGrid comments={comments} updateComment={(com)=>{
-        setComments(comments.map((c)=>(c._id===com._id?com:c)))
-      }}/>
-      <WriteComment post = {{_id :props.post._id, author:props.post.author}} pushComment={(myComment)=>{
+      <Box sx={{display:showComments?'block':'none'}}>
+        <WriteComment post = {{_id :props.post._id, author:props.post.author}} pushComment={(myComment)=>{
           setComments([myComment,...comments])
           updatePost({...props.post, commentsCount:props.post.commentsCount+1})
         }}/>
+        <CommentsGrid comments={comments} updateComment={(com)=>{
+        setComments(comments.map((c)=>(c._id===com._id?com:c)))
+        updatePost({...props.post, commentsCount:props.post.commentsCount+1})
+          }}/>
       </Box>
-      <Box>
         
       
       <Avatar variant="square" src={ movie?.image?.medium ||
           'https://via.placeholder.com/200x300?text=No+image+available'}
           />
-      
-      
-      
       </Box>
     
   </Paper>

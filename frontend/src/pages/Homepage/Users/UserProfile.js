@@ -8,14 +8,16 @@ import TabPanel from "../../utils/TabPanel";
 import MoviesGrid from "../Movies/MoviesGrid";
 import AuthContext from "../../../context/context";
 import PostGrid from '../../Homepage/posts/PostGrid'
+import CommentsGrid from "../posts/Comments/CommentsGrid";
 
 export default function UserProfile(){
     const {user, followUser, unfollowUser, getUserByName,
         removeFriend, removeFriendshipRequest, requestFriendship,
-        getPostsByUser,} = useContext(AuthContext)
+        getPostsByUser,getCommentsByUser} = useContext(AuthContext)
     const {username} = useParams()
     const navigate = useNavigate()
     const [posts,setPosts] = useState([])
+    const [comments,setComments] = useState([])
     username === user.username && navigate('../../MyProfile')
 
     const [viewUser,setViewUser] = useState()
@@ -48,6 +50,16 @@ export default function UserProfile(){
         try {
             const resp = await getPostsByUser(viewUser._id)
             setPosts(resp.data.resource)
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const getComments = async ()=>{
+        if (!viewUser) return
+
+        try {
+            const resp = await getCommentsByUser(viewUser._id)
+            setComments(resp.data.resource)
         } catch (error) {
             console.log(error);
         }
@@ -118,7 +130,7 @@ export default function UserProfile(){
             
             {/* show user's recent posts and comments */}
             <Dialog open={recOpen} onClose={()=>{setRecOpen(false)}} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
-                <RecommendMovie friend={user} updateFriend={
+                <RecommendMovie friend={viewUser} updateFriend={
                     (newResource)=>{
                         setViewUser({...newResource})
                     }
@@ -128,7 +140,7 @@ export default function UserProfile(){
 
             <Tabs value={value} onChange={handleTabChange} aria-label="basic tabs example">
                 <Tab label="Posts" {...a11yProps(0)} onClick={getPosts}/>
-                <Tab label="Comments" {...a11yProps(1)} />
+                <Tab label="Comments" {...a11yProps(1)} onClick={getComments}/>
                 <Tab label="Favorites" {...a11yProps(2)} />
             </Tabs>
             
@@ -136,7 +148,9 @@ export default function UserProfile(){
                 <PostGrid posts={posts} />
             </TabPanel>
             <TabPanel value={value} index={1}>
-            Item Two
+                <CommentsGrid comments={comments}  viewOnly = {true}
+                    updateComment={(com)=>setComments(comments.map((c)=>(c._id===com._id?com:c)))}
+                />
             </TabPanel>
             <TabPanel value={value} index={2}>
                 <MoviesGrid movies={viewUser.favorites}/>

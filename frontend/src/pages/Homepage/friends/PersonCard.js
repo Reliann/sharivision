@@ -140,7 +140,7 @@ export default function PersonCard (props){
         
             
         <Dialog open={recDialog} onClose={()=>setRecDialog(false)} sx={{zIndex:'1401',padding:'1%',position: "absolute", overflowY: "scroll", maxHeight: "90%"}}>
-            <RecommendMovie user = {user} friend={props.info} updateFriend={props.updateFriend}/>
+            <RecommendMovie friend={props.info} updateFriend={props.updateFriend}/>
         </Dialog>
         <Dialog open={errDialog?true:false} onClose={()=>setErrDialog('')}>
             <Typography>

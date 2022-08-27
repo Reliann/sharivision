@@ -6,7 +6,8 @@ export default function CommentsGrid(props) {
     {
       props.comments?.map((comment)=>(
         <Grid key={comment._id} sx={{width:'100%'}}>
-          <Comment comment={comment} updateComment={props.updateComment}/>
+          <Comment viewOnly = {props.viewOnly?true:false} comment={comment}
+            updateComment={props.updateComment} pushComment={props.pushComment}/>
         </Grid>
       ))
     }

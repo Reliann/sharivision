@@ -18,11 +18,7 @@ export default function PostContainer (){
   useEffect(()=>{
     getPosts()
   },[])
-  if (posts.length===0){
-    return <Box>
-      loading...
-    </Box>
-  }
+  console.log(posts,333);
   return <Box>
     <WritePost  pushPost={(post)=>{setPosts([post,...posts])}}/>
     <PostGrid posts ={ posts} updatePost={(post)=>{setPosts(posts.map((p)=>(p._id===post._id?post:p)))}}/>

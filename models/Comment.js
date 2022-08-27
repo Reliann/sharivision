@@ -14,10 +14,12 @@ const CommentSchema = new mongo.Schema({
     },
     reply:{ // comment Id that this commement is for
         type:String,
+        default:''
     },
     tag:{
         //username this comment is for
         type:String,
+        default:''
     },
     author:{
         type:String

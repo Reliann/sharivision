@@ -7,6 +7,7 @@ const { simpleUser } = require('./usersControl')
 const options = {new:true}
 // can only get comments by post id or author or liker or postOwner (it needs to come with some context..)
 
+
 const getFullComment= async (comment)=>{
     try {
         comment = comment.toObject()
@@ -20,12 +21,34 @@ const getFullComment= async (comment)=>{
     }
 }
 
-const getCommentsByPost= async (req, res)=>{
+const getCommentsByUser = async(req,res) =>{
     try {
-        const comments = await Comment.find({post:req.params.id})
+        const comments = await Comment.find({author:req.params.id})
         res.status(200).json({detail:'ok', resource: await Promise.all(comments.map(comment=>(getFullComment(comment))))})
     } catch (error) {
         console.log(error);
+        res.status(500).json('Server Error')
+        
+    }
+}
+
+const getCommentsByPost= async (req, res)=>{
+    try {
+        const comments = await Comment.find({post:req.params.id, reply:''})
+        res.status(200).json({detail:'ok', resource: await Promise.all(comments.map(comment=>(getFullComment(comment))))})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json('Server Error')
+    }
+}
+const getCommentsByComment= async (req, res)=>{
+    try {
+        const comments = await Comment.find({reply:req.params.id})
+        res.status(200).json({detail:'ok', resource: await Promise.all(comments.map(comment=>(getFullComment(comment))))})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json('Server Error')
+
     }
 }
 const addComment= async (req, res)=>{
@@ -40,22 +63,30 @@ const addComment= async (req, res)=>{
                     if (reply){
                         const replyCheck = await Comment.findByIdAndUpdate(reply,{$inc:{commentsCount:1}})
                         if (replyCheck){
-                            const newComment = await Comment.create({
-                                author:author,
-                                body:body,
-                                post:post,
-                                tag:tag,
-                                reply:replyCheck._id,
-                                postAuthor:postCheck.author
-                            })
-                            return res.status(201).json({detail:'ok', resource:await getFullComment(newComment)})
+                            if (!replyCheck.reply){
+                                const newComment = await Comment.create({
+                                    author:author,
+                                    body:body,
+                                    post:post,
+                                    tag:tag,
+                                    reply:replyCheck._id,
+                                    postAuthor:postCheck.author
+                                })
+                                return res.status(201).json({detail:'ok', resource:await getFullComment(newComment)})
+                            }else{
+                                await Comment.findByIdAndUpdate(reply,{$inc:{commentsCount:-1}})
+                                return res.status(404).json("You can't reply to reply")
+                            }
+                            
                         }else{
+                            await Post.findByIdAndUpdate(post, {$inc:{commentsCount:-1}})
                             return res.status(404).json("comment dosn't exit")
                         }
                     }else{
                         const newComment = await Comment.create({
                             author:author,
                             body:body,
+                            tag:tag,
                             post:post,
                             spoiler:spoiler,
                             postAuthor:postCheck.author
@@ -118,8 +149,12 @@ const updateComment = async (req,res)=>{
 const likeComment = async (req,res)=>{
     try {
         // any logged user can like
-        const comment= await Comment.findByIdAndUpdate(req.params.id,{$addToSet:{likes:req.params.userId}},options)
-        return res.status(200).json({detail:'ok',resource:await getFullComment(comment)})
+        const comment= await Comment.findByIdAndUpdate(req.params.id,{$addToSet:{likes:req.userId}},options)
+        if (comment){
+            return res.status(200).json({detail:'ok',resource: comment})
+        }else{
+            return res.status(404).json('comment not found')
+        }
 
     } catch (error) {
         console.log(error);
@@ -129,8 +164,13 @@ const likeComment = async (req,res)=>{
 const unlikeComment = async (req,res)=>{
     try {
         // any logged user can like
-        const comment= await Comment.findByIdAndUpdate(req.params.id,{$pull:{likes:req.params.userId}},options)
-        return res.status(200).json({detail:'ok',resource:await getFullComment(comment)})
+        const comment= await Comment.findByIdAndUpdate(req.params.id,{$pull:{likes:req.userId}},options)
+        if (comment){
+            return res.status(200).json({detail:'ok',resource:comment})
+        }else{
+            return res.status(404).json('comment not found')
+        }
+        
 
     } catch (error) {
         console.log(error);
@@ -140,6 +180,8 @@ const unlikeComment = async (req,res)=>{
 
 module.exports = {
     getCommentsByPost,
+    getCommentsByComment,
+    getCommentsByUser,
     addComment,
     removeComment,
     updateComment,

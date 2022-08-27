@@ -50,7 +50,8 @@ const addPost= async (req, res)=>{
                     movie:movie,
                     spoiler:spoiler,
                 })
-                return res.status(201).json({detail:'ok',resource:getFullPost(newPost)})
+                
+                return res.status(201).json({detail:'ok',resource:await getFullPost(newPost)})
         }else{
             return res.status(404).json("user not found")
         }
@@ -92,7 +93,7 @@ const updatePost = async (req,res)=>{
                 spoiler:spoiler,
 
             },options)
-            return res.status(200).json({detail:'ok', resource:getFullPost(post)})
+            return res.status(200).json({detail:'ok', resource:await getFullPost(post)})
         }else{
             return res.status(403).json("you can't update someone else's post.")
         }
