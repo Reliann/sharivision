@@ -31,6 +31,7 @@ router.post('/', validAuthorId,(req,res)=>{
 })
 router.delete('/:id', validId,(req,res)=>{
     // only author can delete post
+    
     return postControl.removePost(req,res)
 
 })
